@@ -17,3 +17,4 @@ SubarrayDistinctValues
 MinimizingCoins
 *CoinCombinations2
 *BookShop
+**EditDistance

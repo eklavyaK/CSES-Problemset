@@ -21,3 +21,5 @@ MinimizingCoins
 *Projects
 **ElevatorRides
 ***CountingTilings
+*CountingNumbers
+*CountingRooms

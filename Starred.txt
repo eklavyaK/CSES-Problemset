@@ -24,3 +24,4 @@ MinimizingCoins
 *CountingNumbers
 *CountingRooms
 *Monsters
+*HighScore

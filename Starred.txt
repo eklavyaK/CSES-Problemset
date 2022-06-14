@@ -25,3 +25,8 @@ MinimizingCoins
 *CountingRooms
 *Monsters
 *HighScore
+FlightDiscount
+CycleFinding
+*FlightRoutes
+RoudTrip
+*GameRoutes

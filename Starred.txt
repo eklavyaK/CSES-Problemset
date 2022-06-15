@@ -30,3 +30,4 @@ CycleFinding
 *FlightRoutes
 RoudTrip
 *GameRoutes
+*Investigation

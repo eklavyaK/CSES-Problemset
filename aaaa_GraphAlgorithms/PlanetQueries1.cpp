@@ -1,11 +1,9 @@
-#define PROGRAM int main(){rapid_iostream;int tc=1;cin>>tc;while(tc-->0){codeforce();}return 0;}
 #define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
 #define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
 #define _pq(u) priority_queue<u,vector<u>, Comp>
 #define binary(n,k) bitset<k>(n).to_string()
 void swapp(int&a,int&b){int t=a;a=b;b=t;}
 #define println(n) cout<<n<<'\n'
-#define MAIN void codeforce();
 #define Y() cout<<"YES"<<endl
 #define print(n) cout<<n<<' '
 #define N() cout<<"NO"<<endl
@@ -24,32 +22,30 @@ using namespace std;
 #define S second
 #define F first
 Compare(pii)
-/***************************************************/ MAIN PROGRAM /*******************************************************/
-
-
-
-void codeforce(){
-    int n; cin>>n; 
-    if(n%2){
-        if(n==1){
-            cout<<1<<'\n'<<1<<endl;
-        }
-        else cout<<-1<<endl;
-        return;
-    }
-    int a[n+1];
-    for(int i=1;i<=n;i++)a[i]=i;
-    int b[n+1]{};
-    for(int i=n/2+1;i<=n;i++){
-        for(int j=0;j<32;j++){
-            if((1<<j)>a[i])break;
-            if(!(a[i]&(1<<j)))b[i]+=(1<<j);
-        }
-    }
-    for(int i=n/2+1;i<=n;i++){
-        b[b[i]]=a[i];
-    }
+/***************************************************MAIN PROGRAM*******************************************************/
+ 
+//simple binary lifting problem
+ 
+int main(){
+    rapid_iostream;
+    int n,q; cin>>n>>q;
+    int ancestor[n+1][30];
     for(int i=1;i<=n;i++){
-        cout<<a[i]<<' '<<b[i]<<endl;
+        cin>>ancestor[i][0];
     }
+    for(int i=1;i<30;i++){
+        for(int j=1;j<=n;j++){
+            ancestor[j][i]=ancestor[ancestor[j][i-1]][i-1];
+        }
+    }
+    while(q--){
+        int x,k;cin>>x>>k;
+        for(int i=0;i<30;i++){
+            if((1<<i)&k){
+                x = ancestor[x][i];
+            }
+        }
+        cout<<x<<endl;
+    }
+    return 0;
 }

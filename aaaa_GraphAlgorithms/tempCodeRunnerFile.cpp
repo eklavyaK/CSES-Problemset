@@ -29,27 +29,33 @@ Compare(pii)
 
 
 void codeforce(){
-    int n; cin>>n; 
-    if(n%2){
-        if(n==1){
-            cout<<1<<'\n'<<1<<endl;
+    int n;cin>>n;
+    string s; cin>>s;
+    map<char,int> m;
+    for(int i=0;i<n;i++){
+        m[s[i]]++;
+    }
+    sort(s.begin(),s.end());
+    vector<pair<int,char>> v;
+    for(auto i : m){
+        v.push_back({i.S,i.F});
+    }
+    string st = ""; int c=0;
+    sort(v.begin(),v.end());
+    for(auto i : v){
+        st+=string(i.F,i.S);
+    }
+    vector<char> ans(n);
+    reverse(st.begin(),st.end());
+    for(int j=0;j<3;j++){
+        for(int i=j;i<n;i+=3){
+            ans[i]=st[c];c++;
         }
-        else cout<<-1<<endl;
-        return;
     }
-    int a[n+1];
-    for(int i=1;i<=n;i++)a[i]=i;
-    int b[n+1]{};
-    for(int i=n/2+1;i<=n;i++){
-        for(int j=0;j<32;j++){
-            if((1<<j)>a[i])break;
-            if(!(a[i]&(1<<j)))b[i]+=(1<<j);
+    for(int i=0;i<n-2;i++){
+        if(ans[i]==ans[i+1] || ans[i]==ans[i+2]){
+            N(); return;
         }
     }
-    for(int i=n/2+1;i<=n;i++){
-        b[b[i]]=a[i];
-    }
-    for(int i=1;i<=n;i++){
-        cout<<a[i]<<' '<<b[i]<<endl;
-    }
+    Y();for(auto i : ans) cout<<i; cout<<endl;
 }

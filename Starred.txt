@@ -31,3 +31,4 @@ CycleFinding
 RoudTrip
 *GameRoutes
 *Investigation
+*PlanetQueries2

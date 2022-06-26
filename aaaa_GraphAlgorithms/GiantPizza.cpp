@@ -2,6 +2,9 @@
 typedef long double ld;
 typedef long long ll;
 using namespace std;
+
+//Simple two satisfiability problem
+
 const int N = 1e5+5;               //maximum number of nodes
 vector<int> ans[2*N];
 vector<vector<int>> graph(2*N);    //2 has been multiplied to include 'inclusion' and 'non-inclusion' of a node

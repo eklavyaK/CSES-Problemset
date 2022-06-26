@@ -32,3 +32,6 @@ RoudTrip
 *GameRoutes
 *Investigation
 *PlanetQueries2
+*GiantPizza
+*CoinCollector
+*EulerianCircuit

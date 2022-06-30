@@ -21,6 +21,14 @@ using namespace std;
 #define S second
 #define F first
 Compare(pii)
+
+/*
+Edge-Disjoint paths(fron node s to node f) are the paths where each node appears in atmost one path. The maximum number of edge 
+disjoint paths is equal to the maximum flow from s to f.
+
+To find the those paths we first set the capacity of each edge as 1 and find the maximum flow. Then we greedily transverse from source
+to sink using only those edges which were originally present in the graph and not the back edges. We go through the edge only if it's capacity is 0, because after application of maximum flow algorithm only the edges having 0 flow are present in a path from source to the sink.
+*/
 /***************************************************MAIN PROGRAM*******************************************************/
  
 const int N = 505;  //max nodes
@@ -97,6 +105,8 @@ void Dinic(int start, int final){
         }
     }
     cout<<ans<<endl;
+
+
     fill(pos,pos+n+1,0);
     bool ok = false;
     function<void(int)> findpath=[&](int node){

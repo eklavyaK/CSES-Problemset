@@ -1,7 +1,10 @@
+/**************************** INTRODUCTORY ******************************/
 *AppleDivision
 *SubarraySums2
 **ChessboardAndQueens
 ***GridPaths
+
+/**************************** SORTING AND SEARCHING ******************************/
 MovieFestival
 MissingCoinSum
 CollectingNumbers2
@@ -14,6 +17,8 @@ SubarrayDistinctValues
 *SlidingMedian
 *SlidingCost
 *MaximumSubarraySum2
+
+/**************************** DYNAMIC PROGRAMMING ******************************/
 MinimizingCoins
 *CoinCombinations2
 *BookShop
@@ -22,6 +27,8 @@ MinimizingCoins
 **ElevatorRides
 ***CountingTilings
 *CountingNumbers
+
+/**************************** GRAPH ALGORITHMS ******************************/
 *CountingRooms
 *Monsters
 *HighScore
@@ -34,4 +41,11 @@ RoudTrip
 *PlanetQueries2
 *GiantPizza
 *CoinCollector
-*EulerianCircuit
+*MailDelivery
+***HamiltonianFlights
+*Knight'sTour
+**(DownloadSpeed,PoliceChase,SchoolDance,DistinctRoutes) ---> Dinic Maximum Flow Based
+
+/**************************** RANGE QUERIES ******************************/
+*RangeUpdateQueries
+*HotelQueries

@@ -23,12 +23,11 @@ using namespace std;
 Compare(pii)
 /***************************************************MAIN PROGRAM*******************************************************/
 const int N = 2e5+5;
-int tree[N*4], a[N], in[N*4];
-int pos, n, m, cap;
+int tree[N*4], a[N];
+int pos, decrement, st=1, en, n, m, cap;
 void SegmentTree(int node, int l, int r){
     if(l==r){
         tree[node] = a[l];
-        in[node] = l;
         return;
     }
     int mid = (l+r)>>1;
@@ -38,7 +37,7 @@ void SegmentTree(int node, int l, int r){
 }
 void update(int node ,int l, int r){
     if(l==r){
-        tree[node]-=cap;
+        tree[node]-=decrement;
         return;
     }
     int mid = (l+r)>>1;
@@ -46,14 +45,24 @@ void update(int node ,int l, int r){
     else update(2*node+1,mid+1,r);
     tree[node]=max(tree[node*2],tree[2*node+1]);
 }
-int query(int node){
-    if(tree[node]<cap) return 0;
-    if(in[node]){
-        pos = in[node];
-        return in[node];
+int query(int node, int l, int r){
+    if(st>r || en<l) return 0;
+    if(st<=l && en>=r){
+        return tree[node];
     }
-    if(tree[node*2]>=cap) return query(2*node);
-    else return query(2*node+1);
+    int mid = (l+r)>>1;
+    return max(query(2*node,l,mid),query(2*node+1,mid+1,r));
+}
+int get(){
+    int l = 1, r = n;
+    while(l<r){
+        int mid = (l+r)>>1;
+        en = mid;
+        int q = query(1,1,n);
+        if(q>=cap)r = mid;
+        else l = mid+1;
+    }
+    return r;
 }
 int main(){
     rapid_iostream;
@@ -62,11 +71,15 @@ int main(){
     SegmentTree(1,1,n);
     while(m--){
         cin>>cap;
-        if(query(1)){
-            cout<<pos<<' ';
-            update(1,1,n);
+        pos = get();
+        if(a[pos]<cap){
+            cout<<0<<' ';
+            continue;
         }
-        else cout<<0<<' ';
+        else a[pos]-=cap;
+        decrement = cap;
+        cout<<pos<<' ';
+        update(1,1,n);
     }
     return 0;
 }

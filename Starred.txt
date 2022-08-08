@@ -53,3 +53,7 @@ RoudTrip
 /**************************** RANGE QUERIES ******************************/
 *TreeMatching
 **TreeDistances
+**CountingPaths
+**SubtreeQueries
+**PathQueries
+***PathQueries2

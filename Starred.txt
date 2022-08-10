@@ -57,3 +57,4 @@ RoudTrip
 **SubtreeQueries
 **PathQueries
 ***PathQueries2
+**DistinctColors

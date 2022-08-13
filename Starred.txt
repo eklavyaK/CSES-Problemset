@@ -50,7 +50,7 @@ RoudTrip
 *RangeUpdateQueries
 *HotelQueries
 
-/**************************** RANGE QUERIES ******************************/
+/**************************** TREE ALGORITHMS ******************************/
 *TreeMatching
 **TreeDistances
 **CountingPaths
@@ -58,3 +58,6 @@ RoudTrip
 **PathQueries
 ***PathQueries2
 **DistinctColors
+
+/**************************** MATHEMATICS ******************************/
+**JosephusQueries

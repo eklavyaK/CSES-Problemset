@@ -61,3 +61,5 @@ RoudTrip
 
 /**************************** MATHEMATICS ******************************/
 **JosephusQueries
+*SumOfDivisors
+*DivisorsAnalysis

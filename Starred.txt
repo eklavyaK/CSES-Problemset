@@ -63,3 +63,4 @@ RoudTrip
 **JosephusQueries
 *SumOfDivisors
 *DivisorsAnalysis
+**PrimeMultiples

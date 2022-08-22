@@ -64,4 +64,6 @@ RoudTrip
 *SumOfDivisors
 *DivisorsAnalysis
 **PrimeMultiples
+*ChristmasParty
 ***CountingCoPrimePairs
+***BracketSequences2

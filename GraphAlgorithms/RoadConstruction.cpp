@@ -1,60 +1,58 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define print(n) cout<<n<<' '
-#define N() cout<<"NO"<<endl
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
-typedef long long ll;
-#define mp make_pair
-using namespace std;
-#define endl '\n'
-#define S second
+#define endl "\n"
 #define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
+#define S second
+#define int long long
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+/*
+Krushkal's algorithm sorts and edges and then adds all the edges which do not form cycle. Cycle is checked using DSU
+*/
+ 
 const int N = 1e5+5;
-int par[N], sz[N], ansmx = 1, n, m;
-vector<vector<int>> node(N);
-void makeset(int tot){
-    for(int i=1;i<=tot;i++){
-        par[i]=i; sz[i]=1;
-    }
+vector<int> G[N];
+int p[N], sz[N], mx, all;
+ 
+int find(int u){
+    if(u==p[u]) return u;
+    return p[u] = find(p[u]);
 }
-int findset(int u){
-    if(par[u]==u){
-        return u;
-    }
-    return par[u] = findset(par[u]);
-}
-void merge_sets(int u, int v){
-    u = findset(u);
-    v = findset(v);
+void merge(int u, int v){
+    u = find(u), v = find(v);
     if(u!=v){
-        if(sz[u]<sz[v])swap(u,v);
-        par[v]=u;--n;
-        sz[u] += sz[v];
-        ansmx = max(ansmx,sz[u]);
-        cout<<n<<' '<<ansmx<<endl;
+        if(sz[u]<sz[v]) swap(u,v);
+        sz[u] += sz[v], p[v] = u;
+        mx = max(mx,sz[u]);
+        all--;
     }
-    else cout<<n<<' '<<ansmx<<endl;
+    cout<<all<<' '<<mx<<endl;
 }
-int main(){
-    rapid_iostream;
-    cin>>n>>m;
-    makeset(n);
-    while(m--){
-        int u,v; cin>>u>>v;
-        merge_sets(u,v);
+ 
+ 
+void code(int TC){
+    int n,m; cin>>n>>m;
+    for(int i=1;i<=n;i++) sz[i] = 1, p[i] = i;
+    mx = 1, all = n;
+    for(int j=0;j<m;j++){
+        int u,v; 
+        cin>>u>>v;
+        merge(u,v);
     }
+}
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
     return 0;
 }

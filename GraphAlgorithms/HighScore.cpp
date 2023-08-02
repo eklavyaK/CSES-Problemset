@@ -1,81 +1,75 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-void swapp(int&a,int&b){int t=a;a=b;b=t;}
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define N() cout<<"NO"<<endl
-#define print(n) cout<<n<<' '
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
-typedef long long ll;
-#define mp make_pair
-using namespace std;
-#define S second
+#define endl "\n"
 #define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
-map<int,bool> check;
-vector<vector<array<int,2>>> edge(2505);
-const ll mn = -5e12-5;
-bool visited[2505];
-vector<int> track;
-int n,m; 
-void dfs(int x){
-    visited[x]=true;
-    track.push_back(x);
-    if(x==n){
-        for(auto i : track)check[i];
-        visited[x]=false;
-        track.pop_back();
-        return;
+#define S second
+#define int long long
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+ 
+/*
+Bellman-Ford algorithm is used to find the shortest route between a source and a destination,
+ 
+It's complexity is O(V*E), which is much more than Dijkstra
+ 
+ADVANTAGE OVER DIJKSTRA: It can work for negative edge weights, hence it is used to find negative cycle in a graph,
+ 
+first run the edges for n-1 times (n-1 iteration brings saturation), if in during nth iteration, there is a change observed, then there must be negative cycle in the graph
+*/
+ 
+ 
+void code(int TC){
+    int n,m; cin>>n>>m;
+    vector<vector<pair<int,int>>> G(n+5);
+    for(int j=0;j<m;j++){
+        int u,v,c; cin>>u>>v>>c;
+        G[u].push_back({v,c});        
     }
-    for(auto i : edge[x]){
-        if(!visited[i[0]]){
-            dfs(i[0]);
+    vector<int> D(n+5,-1e18), P(n+5), Vis(n+5), T(n+5,-1e18);   // vector P can used for shortest construction
+    D[1] = 0;
+    for(int i=0;i<n;i++){
+        for(int u=1;u<=n;u++){
+            for(auto [v,c] : G[u]){
+                if(D[v]<D[u]+c)D[v] = D[u] + c, P[v] = u;
+            }
+        }
+        if(i==n-2) T = D;
+    }
+    function<void(int)> dfs = [&](int u){
+        Vis[u] = 1;
+        for(auto [v,c] : G[u]){
+            if(!Vis[v]) dfs(v);
+        }
+    };
+    dfs(1);
+    queue<int> q;
+    for(int i=1;i<=n;i++) if(T[i]<D[i] && Vis[i]) q.push(i);
+    fill(Vis.begin(),Vis.end(),0);
+    while(!q.empty()){
+        int u = q.front(); q.pop();
+        if(Vis[u]) continue;
+        dfs(u);
+        if(Vis[n]){
+            cout<<-1<<endl;
+            return;
         }
     }
-    track.pop_back();
-    visited[x]=false;
+    cout<<D[n]<<endl;
 }
-int main(){
-    cin>>n>>m;
-    for(int i=0;i<m;i++){
-        int u,v,w; cin>>u>>v>>w;
-        edge[u].push_back({v,w});
-    }
-    bool detect = false;
-    vector<ll> dist(n+1,mn);
-    dist[1]=0;vector<ll> s,f;
-    for(int i=1;i<=n+5;i++){
-        for(int j=1;j<=n;j++){
-            for(auto [node,w]:edge[j]){
-                dist[node] = max(dist[node],dist[j]+w);
-            }
-        }
-        if(i==n-1){
-            s=dist;
-        }
-        if(i==n+5){
-            f=dist;
-        }
-    }
-    if(s!=f){
-        dfs(1);
-        for(int i=1;i<=n;i++){
-            if(s[i]!=f[i] && check.count(i)){
-                print(-1);exit(0);
-            }
-        }
-        cout<<dist[n];
-    }
-    else cout<<dist[n];
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
     return 0;
 }

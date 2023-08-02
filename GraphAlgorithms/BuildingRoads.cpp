@@ -14,36 +14,37 @@ using namespace std;
 #endif
  
  
-const int N = 1e5+5, M = 1e9+7;
-vector<int> G[N];
-vector<int> D(N), P(N), idg(N), V(N);
+ 
+ 
  
 void code(int TC){
     int n,m; cin>>n>>m;
+    int vis[n+1]{};
+    vector<vector<int>> graph(n+1);
     for(int i=0;i<m;i++){
         int u,v; cin>>u>>v;
-        G[u].push_back(v);
+        graph[u].push_back(v);
+        graph[v].push_back(u);
     }
     function<void(int)> dfs = [&](int node){
-        V[node] = 1;
-        for(auto i : G[node]){
-            if(!V[i]) dfs(i);
-            idg[i]++;
+        vis[node] = 1;
+        for(auto i : graph[node]){
+            if(!vis[i]) dfs(i);
         }
     };
-    dfs(1);
-    queue<int> q;
-    q.push(1);
-    D[1] = 1;
-    while(!q.empty()){
-        int u = q.front(); q.pop();
-        for(auto v : G[u]){
-            D[v] = (D[v] + D[u]) % M;
-            idg[v]--;
-            if(!idg[v]) q.push(v);
+    int ans = -1;
+    vector<int> roads;
+    for(int i=1;i<=n;i++){
+        if(!vis[i]){
+            ans++;
+            dfs(i);
+            roads.push_back(i);
         }
     }
-    cout<<D[n]<<endl;
+    cout<<ans<<endl;
+    for(int i=1;i<roads.size();i++){
+        cout<<roads[i]<<" "<<roads[i-1]<<endl;
+    }
 }
  
  

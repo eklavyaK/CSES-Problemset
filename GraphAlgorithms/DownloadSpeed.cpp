@@ -1,98 +1,73 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define print(n) cout<<n<<' '
-#define N() cout<<"NO"<<endl
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
-typedef long long ll;
-#define mp make_pair
-using namespace std;
-#define endl '\n'
-#define S second
+#define endl "\n"
 #define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
-const int N = 505;
-unsigned int pos[N];
-int in[N][N],dis[N];
-map<int,map<int,int>> check;
-vector<pair<int,ll>> graph[N];
-int s,f,n,m;ll ans;
-bool bfs(){
-    fill(dis,dis+n+1,N);
-    bool done[n+1]{};
-    queue<int> Q; Q.push(s);
-    done[s] = 1; dis[s] = 0;
-    while(!Q.empty()){
-        int node = Q.front(); Q.pop();
-        for(auto [to, cap] : graph[node]){
-            if(!done[to] && cap>0){
-                dis[to] = dis[node]+1;
-                done[to]=1;Q.push(to);
+#define S second
+#define int long long
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+ll dinic(vector<vector<pair<ll,ll>>> T, ll n, ll src, ll snk){
+    if(src > n || snk > n || src <=0 || snk <= 0) return 0ll;
+    vector<vector<ll>> p(n+5,vector<ll>(n+5,-1));
+    vector<vector<pair<ll,ll>>> G(n+5);
+    vector<ll> L(n+5), id(n+5);
+    ll max_flo = 0;
+    for(ll u=1;u<=n;u++){
+        for(ll j=0;j<(ll)T[u].size();j++){
+            auto [v,cap] = T[u][j];
+            if(p[u][v] == -1) p[u][v] = (ll) G[u].size(), p[v][u] = (ll) G[v].size(), G[u].push_back({v,cap}), G[v].push_back({u,0});
+            else G[u][p[u][v]].second += cap;
+        }
+    }
+    auto bfs = [&](){
+        L.assign(n+5,-1), L[src] = 0;
+        queue<ll> q; q.push(src);
+        while(!q.empty()){
+            ll u = q.front(); q.pop();
+            for(auto [v,c] : G[u]) if(c > 0 && L[v] == -1) L[v] = L[u] + 1, q.push(v);
+        }
+        return L[snk] != -1;
+    };
+    function<ll(ll,ll)> dfs = [&](ll u, ll pushed){
+        if(u == snk) return pushed;
+        debug(u,pushed);
+        for(;id[u] < (ll) G[u].size();id[u]++){
+            auto [v, c] = G[u][id[u]];
+            if(L[v] != L[u] + 1 || c <= 0) continue;
+            if(ll flo = dfs(v, min(pushed, c))){
+                G[u][id[u]].second -= flo, G[v][p[v][u]].second += flo;
+                return flo;
             }
         }
-        if(dis[node]>dis[f])break;
-    }
-    return done[f];
+        return 0ll;
+    };
+    if(snk == src) return -1ll;
+    while(bfs()) id.assign(n+5,0), max_flo += dfs(src,8e18);
+    return max_flo;
 }
-ll dfs(int node, ll flo){
-    if(node==f)return flo;
-    for(;pos[node]<graph[node].size();pos[node]++){
-        auto [u,cap] = graph[node][pos[node]];
-        if(dis[u]==dis[node]+1 && cap>0){
-            ll c = dfs(u,min(flo,cap));
-            if(!c) continue;
-            graph[u][in[u][node]].S+=c;
-            graph[node][pos[node]].S-=c;
-            return c;
-        }
-    }
-    return 0;
-}
-void Dinic(int start, int final){         //Solved using Dinic's Maximum Flow algorithm, simple Dinic implementation without struct/class
-    ans = 0;check.clear();
-    s = start; f = final;
+ 
+void code(int TC){
+    int n,m; cin>>n>>m;
+    vector<vector<pair<int,int>>> G(n+5);
     for(int i=0;i<m;i++){
-        int u, v; ll c; cin>>u>>v>>c;
-        if(!check[u].count(v)){
-            in[u][v]=graph[u].size();
-            graph[u].push_back({v,c});
-            in[v][u]=graph[v].size();
-            graph[v].push_back({u,0});
-            check[u][v]; check[v][u];
-        }
-        else{
-            graph[u][in[u][v]].S+=c;
-        }
+        int u,v,c; cin>>u>>v>>c;
+        G[u].push_back({v,c});
     }
-    while(bfs()){
-        fill(pos,pos+n+1,0);
-        for(;pos[s]<graph[s].size();pos[s]++){
-            auto [u,cap] = graph[s][pos[s]];
-            if(dis[u]==dis[s]+1 && cap>0){
-                ll c = dfs(u,cap);
-                if(!c) continue;
-                graph[u][in[u][s]].S+=c;
-                graph[s][pos[s]].S-=c;
-                ans+=c;
-            }
-        }
-    }
-    cout<<ans<<endl;
+    cout<<dinic(G,n,1,n);
 }
-int main(){
-    rapid_iostream;
-    cin>>n>>m;
-    Dinic(1,n);
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    ll TT = 1;
+    for (ll TC = 1; TC <= TT; TC++) 
+        code(TC);
     return 0;
 }

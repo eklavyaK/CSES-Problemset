@@ -14,26 +14,18 @@ using namespace std;
 #endif
  
  
- 
- 
- 
+const int N = 2e5+5;
+int a[N];
 void code(int TC){
 	int n; cin>>n;
-	vector<int> dp(n);
-	vector<tuple<int,int,int>> range(n);
-	for(int i=0;i<n;i++){
-		int l, r, c;
-		cin>>l>>r>>c;
-		range[i] = {r,l,c};
-	}
-	sort(range.begin(),range.end());
-	for(int i=0;i<n;i++){
-		auto [r,l,c] = range[i];
-		int id = lower_bound(range.begin(), range.end(), tuple<int,int,int>{l,0,0}) - range.begin();
-		dp[i] = max(c,dp[i-1*(i!=0)]);
-		if(id-1>=0) dp[i] = max(dp[i], dp[id-1]+c);
-	}
-	cout<<dp[n-1];
+     for(int i=0;i<n;i++) cin>>a[i];
+     vector<int> inc;
+     for(int i=0;i<n;i++){
+          int id = lower_bound(inc.begin(),inc.end(),a[i])-inc.begin();
+          if(id == inc.size()) inc.push_back(a[i]);
+          else inc[id] = a[i];
+     }
+     cout<< (int)inc.size();
 }
  
  

@@ -1,125 +1,70 @@
 #include<bits/stdc++.h>
-#define N() cout<<"NO"<<endl
-#define Y() cout<<"YES"<<endl
-typedef long double ld;
+#define endl "\n"
+#define F first
+#define S second
+#define int long long
 typedef long long ll;
+typedef long double ld;
 using namespace std;
-const int inf = 1e6+1;
-int check[1000][1000];
-int dist;string s[1000];
-vector<char> ans;int n,m;
-vector<vector<int>> dista(1000,vector<int>(1000,inf));
-vector<vector<int>> distb(1000,vector<int>(1000,inf));
-void dfs(int d, int i, int j){
-    check[i][j]=1;
-    if(s[i][j]=='B'){
-        Y();cout<<dist<<endl;
-        for(auto i : ans)cout<<i;
-        exit(0);
-    }
-    if(i>0 && s[i-1][j]!='#' && !check[i-1][j] &&d+1+distb[i-1][j]<=dist){
-        ans.push_back('U');dfs(++d,i-1,j);
-    }
-    if(j>0 && s[i][j-1]!='#' && !check[i][j-1] &&d+1+distb[i][j-1]<=dist){
-        ans.push_back('L');dfs(++d,i,j-1);
-    }
-    if(i+1<n && s[i+1][j]!='#' && !check[i+1][j] &&d+1+distb[i+1][j]<=dist){
-        ans.push_back('D');dfs(++d,i+1,j);
-    }
-    if(j+1<m && s[i][j+1]!='#' && !check[i][j+1] &&d+1+distb[i][j+1]<=dist){
-        ans.push_back('R');dfs(++d,i,j+1);
-    }
-}
-int main(){cin>>n>>m;
-    for(int i=0;i<n;i++)cin>>s[i];
-    int a=-1,b,r=-1,c;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+ 
+ 
+vector<pair<int,int>> r{{-1,0},{0,1},{0,-1},{1,0}};
+vector<char> p{'U','R','L','D'};
+ 
+void code(int TC){
+    int n,m; cin>>n>>m;
+    vector<string> v(n);
+    pair<int,int> loc;
     for(int i=0;i<n;i++){
-        for(int j=0;j<m;j++){
-            if(s[i][j]=='A'){
-                a=i;b=j;
-            }
-            else if(s[i][j]=='B'){
-                r=i;c=j;
-            }
-        }
-        if(a!=-1 && r!=-1)break;
+        cin>>v[i];
+        for(int j=0;j<m;j++) if(v[i][j]=='B') loc = {i,j};
     }
-    set<array<int,3>> st;
-    st.insert({0,a,b});
-    dista[a][b]=0;
-    while(!st.empty()){
-        auto x = *st.begin();
-        if(x[0]>=dista[r][c])break;
-        else if(dista[r][c]==abs(r-a)+abs(c-b))break;
-        if(x[1]>0 && s[x[1]-1][x[2]]!='#'){
-            if(x[0]+1<dista[x[1]-1][x[2]]){
-                st.erase({dista[x[1]-1][x[2]],x[1]-1,x[2]});
-                dista[x[1]-1][x[2]]=x[0]+1;
-                st.insert({dista[x[1]-1][x[2]],x[1]-1,x[2]});
+    queue<pair<int,int>> q;
+    vector<vector<int>> d(n,vector<int>(m,1e9));
+    d[loc.F][loc.S] = 0;
+    q.push(loc);
+    while(!q.empty()){
+        auto [i,j] = q.front(); q.pop();
+        if(v[i][j]=='A') loc = {i,j};
+        for(auto [dx,dy] : r){
+            if(i+dx<n && j+dy<m && i+dx>=0 && j+dy>=0 && v[i+dx][j+dy]!='#' && d[i+dx][j+dy]>d[i][j]+1){
+                d[i+dx][j+dy] = d[i][j]+1;
+                q.push({i+dx,j+dy});
             }
         }
-        if(x[2]>0 && s[x[1]][x[2]-1]!='#'){
-            if(x[0]+1<dista[x[1]][x[2]-1]){
-                st.erase({dista[x[1]][x[2]-1],x[1],x[2]-1});
-                dista[x[1]][x[2]-1]=x[0]+1;
-                st.insert({dista[x[1]][x[2]-1],x[1],x[2]-1});
-            }
-        }
-        if(x[1]+1<n && s[x[1]+1][x[2]]!='#'){
-            if(x[0]+1<dista[x[1]+1][x[2]]){
-                st.erase({dista[x[1]+1][x[2]],x[1]+1,x[2]});
-                dista[x[1]+1][x[2]]=x[0]+1;
-                st.insert({dista[x[1]+1][x[2]],x[1]+1,x[2]});
-            }
-        }
-        if(x[2]+1<m && s[x[1]][x[2]+1]!='#'){
-            if(x[0]+1<dista[x[1]][x[2]+1]){
-                st.erase({dista[x[1]][x[2]+1],x[1],x[2]+1});
-                dista[x[1]][x[2]+1]=x[0]+1;
-                st.insert({dista[x[1]][x[2]+1],x[1],x[2]+1});
-            }
-        }
-        st.erase(x);
     }
-    if(dista[r][c]==inf){N();exit(0);}
-    else dist = dista[r][c];
-    st.clear();
-    st.insert({0,r,c});
-    distb[r][c]=0;
-    while(!st.empty()){
-        auto x = *st.begin();
-        if(x[0]>=distb[a][b])break;
-        else if(distb[a][b]==abs(r-a)+abs(c-b))break;
-        if(x[1]>0 && s[x[1]-1][x[2]]!='#'){
-            if(x[0]+1<distb[x[1]-1][x[2]]){
-                st.erase({distb[x[1]-1][x[2]],x[1]-1,x[2]});
-                distb[x[1]-1][x[2]]=x[0]+1;
-                st.insert({distb[x[1]-1][x[2]],x[1]-1,x[2]});
-            }
-        }
-        if(x[2]>0 && s[x[1]][x[2]-1]!='#'){
-            if(x[0]+1<distb[x[1]][x[2]-1]){
-                st.erase({distb[x[1]][x[2]-1],x[1],x[2]-1});
-                distb[x[1]][x[2]-1]=x[0]+1;
-                st.insert({distb[x[1]][x[2]-1],x[1],x[2]-1});
-            }
-        }
-        if(x[1]+1<n && s[x[1]+1][x[2]]!='#'){
-            if(x[0]+1<distb[x[1]+1][x[2]]){
-                st.erase({distb[x[1]+1][x[2]],x[1]+1,x[2]});
-                distb[x[1]+1][x[2]]=x[0]+1;
-                st.insert({distb[x[1]+1][x[2]],x[1]+1,x[2]});
-            }
-        }
-        if(x[2]+1<m && s[x[1]][x[2]+1]!='#'){
-            if(x[0]+1<distb[x[1]][x[2]+1]){
-                st.erase({distb[x[1]][x[2]+1],x[1],x[2]+1});
-                distb[x[1]][x[2]+1]=x[0]+1;
-                st.insert({distb[x[1]][x[2]+1],x[1],x[2]+1});
-            }
-        }
-        st.erase(x);
+    if(d[loc.first][loc.second]==1e9 || !d[loc.first][loc.second]){
+        cout<<"NO"<<endl;
+        return;
     }
-    dfs(0,a,b);
+    cout<<"YES\n"<<d[loc.first][loc.second]<<endl;
+    function<void(int,int)> dfs = [&](int i, int j){
+        if(v[i][j]=='B') return;
+        for(int k=0;k<4;k++){
+            auto [dx,dy] = r[k];
+            if(i+dx<n && j+dy<m && i+dx>=0 && j+dy>=0 && v[i+dx][j+dy]!='#' && d[i+dx][j+dy]==d[i][j]-1){
+                cout<<p[k];
+                dfs(i+dx,j+dy);
+                return;
+            }
+        }
+    };
+    dfs(loc.first,loc.second);
+}
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
     return 0;
 }

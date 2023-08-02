@@ -1,73 +1,56 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define print(n) cout<<n<<' '
-#define N() cout<<"NO"<<endl
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
+#define endl "\n"
+#define ff first
+#define ss second
+#define int long long
 typedef long long ll;
-#define mp make_pair
+typedef long double ld;
 using namespace std;
-#define endl '\n'
-#define S second
-#define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
-
-
-
-int main(){
-    rapid_iostream;
-    int n; cin>>n;
-    int indeg[n+1]{}, par[n+1]{};
-    vector<vector<int>> tree(n+1);
-    for(int i=0;i<n-1;i++){
-        int u,v; cin>>u>>v;
-        tree[u].push_back(v);
-        tree[v].push_back(u);
-    }
-    function<void(int)> dfs = [&](int node){
-        for(auto i : tree[node]){
-            if(par[node]!=i){
-                indeg[node]++;
-                par[i] = node;
-                dfs(i);
-            }
-        }
-    };
-    dfs(1);
-    queue<int> q;
-    vector<vector<bool>>tot(n+1);
-    for(int i=1;i<=n;i++){
-        if(!indeg[i]){
-            q.push(i);
-        }
-    }
-    int ans = 0;
-    while(!q.empty()){
-        int node = q.front(); 
-        q.pop(); int f = true;
-        for(auto i:tot[node]){
-            if((i&1)&&f){
-                f = !f; ans++;
-            }
-            else ans+=i/2;
-        }
-        if(node==1)break;
-        tot[par[node]].push_back(f);
-        indeg[par[node]]--;
-        if(!indeg[par[node]])
-        q.push(par[node]);
-    }
-    cout<<ans<<endl;
-    return 0;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+ 
+const int N = 2e5 + 5;
+vector<int> T[N];
+int I[N], V[N], P[N];
+ 
+ 
+ 
+void code(int TC){
+     int n, M = 0; cin >> n;
+     for(int i = 1; i < n; i++){
+          int u, v; cin >> u >> v;
+          T[u].push_back(v);
+          T[v].push_back(u);
+          I[u]++, I[v]++;
+     }
+     queue<int> q;
+     for(int i = 2; i <= n; i++) if(I[i] == 1) q.push(i);
+     while(!q.empty()){
+          int u = q.front(); q.pop();
+          for(auto v : T[u]){
+               if(!P[v]){
+                    P[u] = v;
+                    break;
+               }
+          }
+          if(!V[u] && !V[P[u]]) V[u] = V[P[u]] = 1, M = M + 1;
+          I[P[u]]--;
+          if(P[u] != 1 && I[P[u]] == 1) q.push(P[u]); 
+     }
+     cout << M;
+}
+ 
+ 
+signed main(){
+     ios_base::sync_with_stdio(0);
+     cin.tie(0);cout.tie(0);cerr.tie(0);
+     int TT = 1;
+     for (int TC = 1; TC <= TT; TC++) 
+          code(TC);
+     return 0;
 }

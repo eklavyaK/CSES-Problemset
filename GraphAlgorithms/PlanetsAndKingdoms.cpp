@@ -1,66 +1,69 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define print(n) cout<<n<<' '
-#define N() cout<<"NO"<<endl
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
-typedef long long ll;
-#define mp make_pair
-using namespace std;
-#define endl '\n'
-#define S second
+#define endl "\n"
 #define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
-const int N = 1e5+5;
-int vis[N],ans[N],n,m,cnt=1;           
-vector<vector<int>> graph(N);
-vector<vector<int>> revgraph(N); 
-stack<int> comps;                  
-void dfs(int node){
-    vis[node]=1;
-    for(auto i : graph[node]){
-        if(!vis[i]) dfs(i);
-    }
-    comps.push(node);
+#define S second
+#define int long long
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+/*
+Tutorial can be accessed here: https://drive.google.com/file/d/1CacN71mnQrq96_RMgJzsRd734_fmFWDT/view?usp=sharing
+ 
+Tarjan's way of find SCC takes little less space complexity but since there are many vectors involved it's complexity is assumed to be same as Kosaraju.
+ 
+*/
+ 
+vector<vector<int>> Tarjan(vector<vector<int>> G, int n){
+    vector<vector<int>> C; int id = 0;
+    vector<int> s, f(n+5), p(n+5), inStack(n+5), vis(n+5);
+    function<void(int)> dfs = [&](int u){
+        inStack[u] = vis[u] = 1;
+        f[u] = p[u] = id = id+1;
+        s.push_back(u);
+        for(auto v : G[u]){
+            if(!vis[v]) dfs(v);
+            if(inStack[v]) f[u] = min(f[u],f[v]);
+        }
+        if(f[u]!=p[u]) return;
+        vector<int> cur;
+        while(s.back()!=u) cur.push_back(s.back()), inStack[s.back()] = 0, s.pop_back();
+        cur.push_back(u), inStack[u] = 0, s.pop_back(), C.push_back(cur);
+    };
+    for(int i=1;i<=n;i++) if(!vis[i]) dfs(i);
+    return C;
 }
-void revdfs(int node){
-    vis[node]=0; ans[node] = cnt;
-    for(auto i : revgraph[node]){
-        if(vis[i]) revdfs(i);
-    }
-}
-void SCC(){
-    for(int i=1;i<=n;i++){
-        if(!vis[i]) dfs(i);
-    }
-    while(!comps.empty()){
-        int c = comps.top();
-        comps.pop();
-        if(!vis[c])continue;
-        revdfs(c); cnt++;
-    }
-}
-int main(){
-    rapid_iostream;
-    cin>>n>>m;
-    while(m--){
+ 
+void code(int TC){
+    int n,m; cin>>n>>m;
+    vector<vector<int>> G(n+5);
+    for(int j=0;j<m;j++){
         int u,v; cin>>u>>v;
-        graph[u].push_back(v);
-        revgraph[v].push_back(u);
+        G[u].push_back(v);
     }
-    SCC(); cout<<cnt-1<<endl;
-    for(int i=1;i<=n;i++)
-    cout<<ans[i]<<' ';cout<<endl;
+    int ans[n];
+    auto C = Tarjan(G,n);
+    n = C.size();
+    debug(C);
+    for(int i=0;i<n;i++){
+        for(auto j : C[i]) ans[j-1] = i+1;
+    }
+    cout<<n<<endl;
+    for(auto i : ans) cout<<i<<' ';
+}
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
     return 0;
 }

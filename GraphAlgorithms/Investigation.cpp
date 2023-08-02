@@ -1,81 +1,79 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-void swapp(int&a,int&b){int t=a;a=b;b=t;}
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define N() cout<<"NO"<<endl
-#define print(n) cout<<n<<' '
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
-typedef long long ll;
-#define mp make_pair
-using namespace std;
-#define endl '\n'
-#define S second
+#define endl "\n"
 #define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
-
-const ll inf = 2e14;
-
-int main(){
-    int  n,m; cin>>n>>m;
-    vector<vector<pair<int,int>>> edge(n+1);
+#define S second
+#define int long long
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+ 
+const int N = 1e5+5, M = 1e9+7;
+vector<pair<int,int>> G[N], R[N];
+vector<int> D(N,1e18), MX(N), MN(N,N), V(N), idg(N), P(N);
+ 
+void code(int TC){
+    int n,m; cin>>n>>m;
     for(int i=0;i<m;i++){
-        int u,v,w; cin>>u>>v>>w;
-        edge[u].push_back({v,w});
+        int u,v,c; cin>>u>>v>>c;
+        G[u].push_back({v,c});
+        R[v].push_back({u,c});
     }
-    vector<ll> cost(n+1,inf);
-    set<pair<ll,int>> st;
-    cost[1]=0;
-    st.insert({0,1});
-    while(!st.empty()){
-        auto [costt,node]=*st.begin();
-        for(auto [u,c] : edge[node]){
-            if(cost[u]>costt+c){
-                st.erase({cost[u],u});
-                cost[u]=costt+c;
-                st.insert({cost[u],u});
-            }
-        }
-        st.erase({costt,node});
-    }
-    int check[n+1]{};
-    int cnt[n+1]{};
-    for(int i=1;i<=n;i++){
-        for(auto [node,c] : edge[i]){
-            if(cost[node]==cost[i]+c){
-                cnt[node]++;
+    priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>> pq;
+    pq.push({0,n});
+    D[n] = 0;
+    while(!pq.empty()){
+        auto [d,u] = pq.top(); pq.pop();
+        if(V[u]) continue;
+        else V[u] = 1;
+        for(auto [v,c] : R[u]){
+            if(D[v]>d+c){
+                D[v] = d+c;
+                pq.push({D[v],v});
             }
         }
     }
-    vector<int> mn(n+1,100000);
-    vector<int> mx(n+1);
-    mn[1]=0;mx[1]=0;
-    vector<int> ways(n+1,0);
-    queue<int> bfs;
-    bfs.push(1);
-    ways[1]=1;
-    while(!bfs.empty()){
-        int k = bfs.front(); bfs.pop();
-        for(auto [node,c] : edge[k]){
-            if(cost[node]==cost[k]+c){
-                mx[node]=max(mx[node],mx[k]+1);
-                mn[node]=min(mn[node],mn[k]+1);
-                ways[node]=(ways[node]+ways[k])%mod1;
-                cnt[node]--; if(cnt[node]==0){
-                    bfs.push(node);
-                }
-            }
+    fill(V.begin(),V.end(),0);
+    function<void(int)> dfs = [&](int node){
+        V[node] = 1;
+        for(auto [u,c] : G[node]){
+            if(D[u]+c==D[node]) idg[u]++;
+            if(D[u]+c==D[node] && !V[u]) dfs(u);
         }
+    };
+    dfs(1);
+    queue<int> q;
+    q.push(1);
+    MX[1] = MN[1] = 0;
+    P[1] = 1;
+    while(!q.empty()){
+        int u = q.front(); q.pop();
+        debug(u,P[u]);
+        for(auto [v,c] : G[u]){
+            if(D[v]+c==D[u]){
+                P[v] = (P[v] + P[u]) % M;
+                MX[v] = max(MX[u]+1,MX[v]);
+                MN[v] = min(MN[u]+1,MN[v]);
+                idg[v]--;
+                if(!idg[v]) q.push(v);
+            }
+        } 
     }
-    cout<<cost[n]<<' '<<ways[n]<<' '<<mn[n]<<' '<<mx[n];
+    cout<<D[1]<<" "<<P[n]<<" "<<MN[n]<<" "<<MX[n]<<endl;
+}
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
+    return 0;
 }

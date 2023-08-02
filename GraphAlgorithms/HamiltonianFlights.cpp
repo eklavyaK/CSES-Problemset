@@ -13,23 +13,26 @@ using namespace std;
 #define debug(...) 42
 #endif
  
- 
-const int N = 5e3 + 5;
-int dp[N][N];
- 
- 
+const int M = 1e9+7;
+int dp[20][1<<20];
+vector<int> E[20];
+int add(int A){
+    if(A>=M) A-=M;
+    return A;
+}
 void code(int TC){
-    string I, T; cin>>I>>T;
-    int n = I.size(), m = T.size();
-    for(int i=1;i<=m;i++) dp[0][i] = i;
-    for(int i=1;i<=n;i++) dp[i][0] = i;
-    for(int i=1;i<=n;i++){
-        for(int j=1;j<=m;j++){
-            if(I[i-1]==T[j-1]) dp[i][j] = dp[i-1][j-1];
-            else dp[i][j] = min({dp[i-1][j-1],dp[i-1][j],dp[i][j-1]}) + 1;
+    int n,m; cin>>n>>m;
+    for(int j=0;j<m;j++){
+        int u,v; cin>>u>>v; u--, v--;
+        E[v].push_back(u);
+    }
+    dp[0][1] = 1;
+    for(int i=3;i<(1<<n);i+=2){
+        for(int v=1;v<n;v++) if((1<<v)&i){
+            for(auto u : E[v]) dp[v][i] = add(dp[v][i] + dp[u][i^(1<<v)]);
         }
     }
-    cout<<dp[n][m];
+    cout<<dp[n-1][(1<<n)-1];
 }
  
  

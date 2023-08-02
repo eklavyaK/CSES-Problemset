@@ -1,80 +1,85 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define print(n) cout<<n<<' '
-#define N() cout<<"NO"<<endl
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
-typedef long long ll;
-#define mp make_pair
-using namespace std;
-#define endl '\n'
-#define S second
+#define endl "\n"
 #define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
-const int N = 1e5+5;
-vector<int> graph[N];
-int n,m,indeg[N],outdeg[N];
-vector<int> route;
-vector<int> track(N);
-bool check(){
-    if(outdeg[1]-indeg[1]!=1 || indeg[n]-outdeg[n]!=1){
-        return false;
+#define S second
+#define int long long
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+ 
+ 
+ 
+ 
+void code(int TC){
+    int n,m; cin>>n>>m;
+    vector<vector<pair<int,int>>> G(n+5);
+    vector<int> idg(n+5), E(m), vis(n+5);
+    for(int j=0;j<m;j++){
+        int u,v; cin>>u>>v;
+        idg[u]++, idg[v]++;
+        G[u].push_back({v,j});
     }
+    bool f = false;
+    if(idg[1] % 2 == 0 || idg[n] % 2 == 0) f = true;
     for(int i=2;i<n;i++){
-        if(outdeg[i]!=indeg[i])return false;
+        if(idg[i] & 1) f = true;
     }
-    int vis[n+1]{};
-    queue<int> q;
-    q.push(1);vis[1] = 1;
-    while(!q.empty()){
-        int node = q.front();q.pop();
-        for(auto i : graph[node]){
-            if(!vis[i]) {
-                q.push(i);
-                vis[i]=1;
+    if(f){
+        cout<<"IMPOSSIBLE"<<endl;
+        return;
+    }
+    vector<queue<int>> C(n+5);
+    function<void(int,int)> dfs = [&](int u, int node){
+        vis[u] = 1;
+        C[node].push(u);
+        while(!G[u].empty()){
+            auto [v,e] = G[u].back();
+            G[u].pop_back();
+            if(!E[e]){
+                E[e] = 1, dfs(v,node);
+                return;
             }
         }
-    }
+    };
+    dfs(1,0);
     for(int i=1;i<=n;i++){
-        if(!vis[i] && (indeg[i]!=0||outdeg[i]!=0)){
-            return false;
+        if(!vis[i]) continue;
+        while(!G[i].empty()){
+            auto [v,e] = G[i].back();
+            if(!E[e]) dfs(i,i), debug(i,C[i]);
+            else G[i].pop_back();
         }
     }
-    return true;
-}
-void dfs(int node){
-    for(;track[node]<graph[node].size();){
-        dfs(graph[node][track[node]++]);
-    }
-    route.push_back(node);
-}
-int main(){
-    rapid_iostream;
-    cin>>n>>m;
     for(int i=0;i<m;i++){
-        int u,v; cin>>u>>v;
-        graph[u].push_back(v);
-        indeg[v]++;outdeg[u]++;
+        if(!E[i]){
+            debug(i);
+            cout<<"IMPOSSIBLE"<<endl;
+            return;
+        }
     }
-    if(!check()){
-        cout<<"IMPOSSIBLE"<<endl;
-        return 0;
-    }
-    dfs(1);
-    reverse(route.begin(),route.end());
-    for(auto i : route){
-        cout<<i<<' ';
-    }
+    function<void(int)> construct = [&](int u){
+        while(!C[u].empty()){
+            int node = C[u].front(); C[u].pop();
+            if(u!=node && !C[node].empty()) construct(node);
+            else cout<<node<<" ";
+        }
+    };
+    construct(0);
+}
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
     return 0;
 }

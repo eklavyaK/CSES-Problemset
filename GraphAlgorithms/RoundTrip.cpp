@@ -1,68 +1,64 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-void swapp(int&a,int&b){int t=a;a=b;b=t;}
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define N() cout<<"NO"<<endl
-#define print(n) cout<<n<<' '
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
-typedef long long ll;
-#define mp make_pair
-using namespace std;
-#define S second
+#define endl "\n"
 #define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
-
-vector<int> ans;
-vector<vector<int>> edge(200005);
-int check[100005];
-int parent[100005];
-void display_cycle(int i, int x){
-    int cnt = 2;
-    ans.push_back(i);
-    while(x!=i){
-        ans.push_back(x);
-        x = parent[x];
-        cnt++;
-    }
-    ans.push_back(i);
-    cout<<ans.size()<<endl;
-    for(auto i : ans)cout<<i<<' ';
-}
-void dfs(int x){
-    check[x]=1;
-    for(auto i : edge[x]){
-        if(!check[i]){
-            parent[i]=x;
-            dfs(i);
-        }
-        else if(parent[x]!=i){
-            display_cycle(i,x);
-            exit(0);
-        }
-    }
-}
-int main(){
+#define S second
+#define int long long
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+ 
+void code(int TC){
     int n,m; cin>>n>>m;
-    for(int i=0;i<m;i++){
+    vector<vector<int>> graph(n+1);
+    for(int j=0;j<m;j++){
         int u,v; cin>>u>>v;
-        edge[u].push_back(v);
-        edge[v].push_back(u);
+        graph[u].push_back(v);
+        graph[v].push_back(u);
     }
-    parent[1]=1;
-    for(int i=1;i<=n;i++){
-        if(!check[i])dfs(i);
+    vector<int> vis(n+1);
+    vector<int> route;
+    int f = 0;
+    function<void(int,int)> dfs = [&](int node, int par){
+        vis[node] = 1;
+        for(auto i : graph[node]){
+            if(i==par) continue;
+            if(vis[i]){
+                f = i;
+                route.push_back(i);
+                route.push_back(node);
+                return;
+            }
+            dfs(i,node);
+            if(f){
+                if(f==-1) return;
+                route.push_back(node);
+                if(node==f) f = -1;
+                return;
+            }
+        }
+    };
+    for(int i=1;i<=n;i++) if(!vis[i] && !f) dfs(i,0);
+    if(!f){
+        cout<<"IMPOSSIBLE"<<endl;
+        return;
     }
-    print("IMPOSSIBLE");
+    cout<<route.size()<<endl;
+    for(auto i : route) cout<<i<<" ";cout<<endl;
+}
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
     return 0;
 }

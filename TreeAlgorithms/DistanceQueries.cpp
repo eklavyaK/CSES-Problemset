@@ -20,21 +20,15 @@ int p[N][L], dep[N], l[N], r[N], ans[N];
 void dfs(int u){
      for(auto v : T[u]) if(v != p[u][0]) p[v][0] = u, dep[v] = dep[u] + 1, dfs(v);
 }
-void add(int u, int v){
+int lca(int u, int v){
      if(dep[u] < dep[v]) swap(u, v);
-     int U = u, V = v, D = dep[u] - dep[v];
+     int D = dep[u] - dep[v];
      for(int i = 0; i < L; i++) if((1 << i) & D) u = p[u][i];
      if(u == v){
-          r[U]++, l[V]++;
-          return;
+          return u;
      }
      for(int i = L - 1; i >= 0; i--) if(p[u][i] != p[v][i]) u = p[u][i], v = p[v][i];
-     r[U]++, l[p[u][0]]++, r[V]++, l[v]++;
-}
-int calc(int u){
-     for(auto v : T[u]) if(v != p[u][0]) ans[u] += calc(v);
-     ans[u] += r[u];
-     return ans[u] - l[u];
+     return p[u][0];
 }
 void code(int TC){
      int n, m; cin >> n >> m;
@@ -47,12 +41,10 @@ void code(int TC){
      for(int i = 1; i < L; i++){
           for(int j = 1; j <= n; j++) p[j][i] = p[p[j][i - 1]][i - 1];
      }
-     for(int j = 0; j < m; j++){
-          int u, v; cin >> u >> v; 
-          add(u, v);
+     while(m--){
+          int u, v; cin >> u >> v;
+          cout << dep[u] + dep[v] - 2 * dep[lca(u, v)] << endl;
      }
-     calc(1);
-     for(int i = 1; i <= n; i++) cout << ans[i] << ' ';
 }
  
 signed main(){

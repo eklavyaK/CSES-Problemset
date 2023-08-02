@@ -16,42 +16,33 @@ using namespace std;
  
 const int N = 1e5+5;
 vector<int> G[N];
-vector<int> D(N), P(N), idg(N), V(N);
+int indeg[N];
  
 void code(int TC){
     int n,m; cin>>n>>m;
     for(int i=0;i<m;i++){
         int u,v; cin>>u>>v;
         G[u].push_back(v);
+        indeg[v]++;
     }
-    function<void(int)> dfs = [&](int node){
-        V[node] = 1;
-        for(auto i : G[node]){
-            if(!V[i]) dfs(i);
-            idg[i]++;
-        }
-    };
-    dfs(1);
     queue<int> q;
-    q.push(1);
+    vector<int> ans;
+    for(int i=1;i<=n;i++) if(!indeg[i]) q.push(i);
     while(!q.empty()){
-        int u = q.front(); q.pop();
-        for(auto v : G[u]){
-            if(D[v]<D[u]+1) D[v] = D[u]+1, P[v] = u;
-            idg[v]--;
-            if(!idg[v]) q.push(v);
+        int node = q.front(); q.pop();
+        ans.push_back(node);
+        for(auto u : G[node]){
+            indeg[u]--;
+            if(!indeg[u])q.push(u);
         }
     }
-    if(!D[n]){
-        cout<<"IMPOSSIBLE"<<endl;
-        return;
+    for(int i=1;i<=n;i++){
+        if(indeg[i]){
+            cout<<"IMPOSSIBLE"<<endl;
+            return;
+        }
     }
-    cout<<D[n]+1<<endl;
-    vector<int> ans;
-    ans.push_back(n);
-    int cur = n;
-    while(cur!=1) cur=P[cur], ans.push_back(cur);
-    for(int i=D[n];i>=0;i--) cout<<ans[i]<<" ";cout<<endl;
+    for(auto i : ans) cout<<i<<" ";cout<<endl;
 }
  
  

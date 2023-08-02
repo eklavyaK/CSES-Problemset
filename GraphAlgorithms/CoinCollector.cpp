@@ -1,101 +1,75 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define print(n) cout<<n<<' '
-#define N() cout<<"NO"<<endl
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
-typedef long long ll;
-#define mp make_pair
-using namespace std;
-#define endl '\n'
-#define S second
+#define endl "\n"
 #define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
-
-const int N = 1e5+5;
-vector<vector<int>> graph(N);
-int vis[N], proc[N], mn[N], n, m, id = 0, cnt = 1;
-vector<int> ans[N];
-bool inStack[N];
-stack<int> comps;
-void dfs(int node){
-    vis[node] = 1;
-    comps.push(node);
-    inStack[node]=true;
-    proc[node]=mn[node]=++id;
-    for(auto i : graph[node]){
-        if(!vis[i]) dfs(i);
-        if(inStack[i]) mn[node] = min(mn[i],mn[node]);
-    }
-    if(mn[node]!=proc[node])return;
-    while(true){
-        int c = comps.top();
-        mn[c] = proc[node];
-        inStack[c] = false;
-        comps.pop();
-        ans[cnt].push_back(c);
-        if(c==node)break;
-    }
-    cnt++;
-}
-void SCC(){
-    for(int i=1;i<=n;i++){
-        if(!vis[i])dfs(i);
-    }
-}
-bool travs[N];
-ll tot[N],mx[N];
-int coin[N], scc[N];
-vector<int> comp[N];
-void dfs_scc(int node){
-    travs[node]=1;
-    mx[node]=tot[node];
-    for(auto i : comp[node]){
-        if(!travs[i]){
-            dfs_scc(i);
+#define S second
+#define int long long
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+ 
+vector<vector<int>> Tarjan(vector<vector<int>> G, int n){
+    vector<vector<int>> C; int id = 0;
+    vector<int> s, f(n+5), p(n+5), inStack(n+5), vis(n+5);
+    function<void(int)> dfs = [&](int u){
+        inStack[u] = vis[u] = 1;
+        f[u] = p[u] = id = id+1;
+        s.push_back(u);
+        for(auto v : G[u]){
+            if(!vis[v]) dfs(v);
+            if(inStack[v]) f[u] = min(f[u],f[v]);
         }
-        mx[node]=max(mx[node],mx[i]+tot[node]);
-    }
+        if(f[u]!=p[u]) return;
+        vector<int> cur;
+        while(s.back()!=u) cur.push_back(s.back()), inStack[s.back()] = 0, s.pop_back();
+        cur.push_back(u), inStack[u] = 0, s.pop_back(), C.push_back(cur);
+    };
+    for(int i=1;i<=n;i++) if(!vis[i]) dfs(i);
+    return C;
 }
-int main(){
-    rapid_iostream;
-    cin>>n>>m;
-    for(int i=1;i<=n;i++){
-        cin>>coin[i];
-    }
-    while(m--){
+ 
+void code(int TC){
+    int n, m; cin>>n>>m;
+    vector<vector<int>> G(n+5), R(n+5);
+    vector<int> coin(n+5), comp(n+5), tot(n+5), idg(n+5), dp(n+5);
+    for(int i=1;i<=n;i++) cin>>coin[i];
+    for(int j=0;j<m;j++){
         int u,v; cin>>u>>v;
-        graph[u].push_back(v);
+        G[u].push_back(v);
     }
-    SCC();
+    auto C = Tarjan(G,n);
+    for(int i=0;i<C.size();i++){
+        for(auto j : C[i]) comp[j] = i+1, tot[i+1] += coin[j];
+    }
     for(int i=1;i<=n;i++){
-        for(auto u : ans[i]){
-            scc[u]=i;
+        for(auto u : G[i]) if(comp[u]!=comp[i]) R[comp[i]].push_back(comp[u]), idg[comp[u]]++;
+    }
+    n = C.size();
+    queue<int> q;
+    for(int i=1;i<=n;i++) if(!idg[i]) q.push(i), dp[i] = tot[i];
+    while(!q.empty()){
+        int u = q.front(); q.pop();
+        for(auto i : R[u]){
+            dp[i] = max(dp[i],dp[u]+tot[i]);
+            idg[i]--;
+            if(!idg[i]) q.push(i);
         }
     }
-    for(int i=1;i<=n;i++){
-        tot[scc[i]]+=coin[i];
-    }
-    for(int i=1;i<=n;i++){
-        for(auto u : graph[i]){
-            if(scc[u]!=scc[i])
-            comp[scc[i]].push_back(scc[u]);
-        }
-    }
-    for(int i=1;i<cnt;i++){
-        if(!travs[i])dfs_scc(i);
-    }
-    cout<<*max_element(mx,mx+cnt);
+    cout<<*max_element(dp.begin(),dp.end())<<endl;
+}
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
     return 0;
 }

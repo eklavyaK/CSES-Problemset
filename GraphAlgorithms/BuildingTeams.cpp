@@ -1,58 +1,59 @@
-#define PROGRAM int main(){rapid_iostream;int tc=1;while(tc-->0){codeforce();}return 0;}
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-void swapp(int&a,int&b){int t=a;a=b;b=t;}
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define N() cout<<"NO"<<endl
-#define MAIN void codeforce();
-#define print(n) cout<<n<<' '
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
-typedef long long ll;
-#define mp make_pair
-using namespace std;
-#define S second
+#define endl "\n"
 #define F first
-Compare(pii)
-/***************************************************/ MAIN PROGRAM /*******************************************************/
-const int N = 1e5+5;
-vector<int> ans(N);
-vector<int> check(N);
-vector<vector<int>> f(N);
-void dfs(int x){
-    check[x]=1;
-    for(auto i : f[x]){
-        if(ans[i]==ans[x]){
-            print("IMPOSSIBLE");
-            exit(0);
-        }
-        ans[i]=ans[x]==1?2:1;
-        if(!check[i])dfs(i);
-    }
-}
-void codeforce(){
+#define S second
+#define int long long
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+ 
+/*
+Bipartite matching is simply coloring the nodes of a graph in such a way that no two adjacent nodes have same color
+ 
+We can color any graph in bipartite way if it doesn't have a ODD cycle
+ 
+NOTE: This can be used as a criteria to check if the graph has any ODD cycle
+*/
+ 
+ 
+void code(int TC){
     int n,m; cin>>n>>m;
-    for(int i=0;i<m;i++){
-        int u, v; cin>>u>>v;
-        f[u].push_back(v);
-        f[v].push_back(u);
+    vector<vector<int>> graph(n+1);
+    for(int j=0;j<m;j++){
+        int u,v; cin>>u>>v;
+        graph[u].push_back(v);
+        graph[v].push_back(u);
     }
-    for(int i=1;i<=n;i++){
-        if(ans[i]==0){
-            ans[i]=1;
-            dfs(i);
+    bool possible = true;
+    vector<int> color(n+1);
+    function<void(int,int)> go = [&](int node, int col){
+        color[node] = col;
+        for(auto i : graph[node]){
+            if(color[i] && color[i]==color[node]) possible = false;
+            if(!color[i]) go(i,3^color[node]);
         }
+    };
+    for(int i=1;i<=n;i++) if(!color[i]) go(i,1);
+    if(!possible){
+        cout<<"IMPOSSIBLE"<<endl;
+        return;
     }
-    for(int i=1;i<=n;i++){
-        cout<<ans[i]<<' ';
-    }
+    for(int i=1;i<=n;i++) cout<<color[i]<<" ";cout<<endl;
+}
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
+    return 0;
 }

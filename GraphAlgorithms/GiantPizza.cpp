@@ -1,13 +1,22 @@
 #include<bits/stdc++.h>
-typedef long double ld;
+#define endl "\n"
+#define F first
+#define S second
+#define int long long
 typedef long long ll;
+typedef long double ld;
 using namespace std;
-
-//Simple two satisfiability problem
-
-const int N = 1e5+5;               //maximum number of nodes
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+ 
+const int N = 1e5+5;              //maximum number of nodes
 vector<int> ans[2*N];
-vector<vector<int>> graph(2*N);    //2 has been multiplied to include 'inclusion' and 'non-inclusion' of a node
+vector<vector<int>> graph(2*N);  //2 has been multiplied to include 'inclusion' and 'non-inclusion' of a node
 vector<vector<int>> revgraph(2*N);
 int vis[2*N],order[2*N],n,m,cnt=1;
 stack<int> comps;
@@ -94,9 +103,19 @@ void solve_2SAT(int nodes, int junctions){
         cout<<result[i]<<' ';
     }
 }
-int main(){
-    int nodes, junctions;
-    cin>>junctions>>nodes;
-    solve_2SAT(nodes,junctions);
+ 
+ 
+void code(int TC){
+    int n,m; cin>>n>>m;
+    solve_2SAT(m,n);
+}
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
     return 0;
 }

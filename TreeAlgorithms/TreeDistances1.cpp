@@ -1,94 +1,59 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define print(n) cout<<n<<' '
-#define N() cout<<"NO"<<endl
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
-#include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
+#include <bits/stdc++.h>
+#define endl "\n"
+#define ff first
+#define ss second
+#define int long long
 typedef long long ll;
-#define mp make_pair
+typedef long double ld;
 using namespace std;
-#define endl '\n'
-#define S second
-#define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
-
-
-
-int main(){
-    rapid_iostream;
-    int n; cin>>n;
-    vector<vector<int>> tree(n+1);
-    for(int i=1;i<n;i++){
-        int u,v; cin>>u>>v;
-        tree[u].push_back(v);
-        tree[v].push_back(u);
-    }
-    int indeg[n+1]{}, par[n+1]{};
-    function<void(int)> dfs = [&](int node){
-        for(auto i : tree[node]){
-            if(par[node]!=i){
-                par[i] = node;
-                indeg[node]++;
-                dfs(i);
-            }
-        }
-    };
-    dfs(1);
-    queue<int> q;
-    for(int i=1;i<=n;i++){
-        if(!indeg[i])q.push(i);
-    }
-    int dist[n+1]{};
-    vector<set<pair<int,int>>> all(n+1);
-    while(!q.empty()){
-        int node = q.front(); q.pop();
-        if(node==1)break;
-        all[par[node]].insert({dist[node]+1,node});
-        dist[par[node]] = max(dist[par[node]],dist[node]+1);
-        indeg[par[node]]--;
-        if(!indeg[par[node]])q.push(par[node]);
-    }
-    while(!q.empty())q.pop();
-    queue<pair<int,int>> bfs;
-    bfs.push({1,1});
-    while(!bfs.empty()){
-        auto [node,dis] = bfs.front(); bfs.pop();
-        for(auto i : tree[node]){
-            if(i!=par[node]){
-                auto it = all[node].end();
-                it--;
-                if(it->second==i){
-                    if(all[node].size()==1){
-                        dist[i] = max(dist[i],dis);
-                        all[i].insert({dis,node});
-                    }
-                    else{
-                        it--;
-                        dist[i] = max(dist[i],max(dis,it->first+1));
-                        all[i].insert({max(dis,it->first+1),node});
-                    }
-                }
-                else{
-                    dist[i] = max(dist[i],max(it->first+1,dis));
-                    all[i].insert({max(it->first+1,dis),node});
-                }
-                bfs.push({i,dis+1});
-            }
-        }
-    }
-    for(int i=1;i<=n;i++){
-        cout<<dist[i]<<' ';
-    }
-    return 0;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a, n) 42
+#define debug(...) 42
+#endif
+ 
+const int N = 2e5 + 5;
+vector<vector<pair<int,int>>> M(N, vector<pair<int,int>>(2));
+vector<vector<int>> T(N);
+ 
+void dfs(int u, int p){
+     for(auto v : T[u]){
+          if(v == p) continue;
+          dfs(v, u);
+          if(M[v][1].ff + 1 > M[u][0].ff) M[u][0].ff = M[v][1].ff + 1, M[u][0].ss = v;
+          sort(M[u].begin(), M[u].end());
+     }
+}
+void calc(int u, int p){
+     for(auto v : T[u]){
+          if(v == p) continue;
+          for(int i = 1; i >= 0; i--){
+               if(M[u][i].ss != v && M[u][i].ff + 1 > M[v][0].ff){
+                    M[v][0].ff = M[u][i].ff + 1, M[v][0].ss = u;
+                    sort(M[v].begin(), M[v].end());
+               }
+          }
+          calc(v, u);
+     }
+}
+void code(int TC){
+     int n; cin >> n;
+     for (int i = 1; i < n; i++){
+          int u, v; cin >> u >> v;
+          T[u].push_back(v);
+          T[v].push_back(u);
+     }
+     dfs(1, 0);
+     calc(1, 0);
+     for(int i = 1; i <= n; i++) cout<< M[i][1].ff << " ";
+}
+ 
+signed main(){
+     ios_base::sync_with_stdio(0);
+     cin.tie(0);cout.tie(0);cerr.tie(0);
+     int TT = 1;
+     for(int TC = 1; TC <= TT; TC++)
+          code(TC);
+     return 0;
 }

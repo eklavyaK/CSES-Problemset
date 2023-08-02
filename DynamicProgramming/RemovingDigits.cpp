@@ -1,44 +1,41 @@
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define binary(n,k) bitset<k>(n).to_string()
 #include<bits/stdc++.h>
+#define endl "\n"
 #define F first
 #define S second
-#define mp make_pair
-#define mod2 998244353ll
-#define mod1 1000000007ll
-#define print(n) cout<<n<<endl
+#define int long long
 typedef long long ll;
 typedef long double ld;
-void Y(){std::cout<<"YES"<<std::endl;}
-void N(){std::cout<<"NO"<<std::endl;}
 using namespace std;
-const int M = 1e6+5;
-int dp[M];
-bool check[M];
-int main(){
-    rapid_iostream;
-
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+const int M = 1e9+7, N = 1e6+7;
+int dp[N], C[105];
+ 
+void code(int TC){
     int n; cin>>n;
-    queue<array<int,2>> q;
-    q.push({n,0});
-    while(!q.empty()){
-        auto [x,c] = q.front();
-        string s = to_string(x);
-        for(int i=0;i<s.size();i++){
-            int z = s[i]-'0';
-            if(z!=0 && x-z>=0 && !check[x-z]){
-                if(x-z==0){
-                    print(c+1);
-                    exit(0);
-                }
-                else{
-                    q.push({x-z,c+1});
-                    check[x-z]=true;
-                }
-            }
+    for(int i=1;i<=n;i++) dp[i] = 1e9;
+    for(int i=1;i<=n;i++){
+        int cur = i;
+        while(cur>0){
+            int j = cur % 10;
+            dp[i] = min(dp[i],dp[i-j]+1);
+            cur/=10;
         }
-        q.pop();
     }
-
+    cout<<(dp[n]==1e9?-1:dp[n]);
+}
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
     return 0;
 }

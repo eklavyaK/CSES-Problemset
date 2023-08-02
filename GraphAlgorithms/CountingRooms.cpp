@@ -1,80 +1,48 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-void swapp(int&a,int&b){int t=a;a=b;b=t;}
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define N() cout<<"NO"<<endl
-#define print(n) cout<<n<<' '
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
-typedef long long ll;
-#define mp make_pair
-using namespace std;
-#define S second
+#define endl "\n"
 #define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
+#define S second
+#define int long long
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
 
-const int N = 1e6;
-int parent[N+1];
-int szn[N+1];
-void make(int n){
-    for(int i=0;i<=n;i++){
-        parent[i]=i;szn[i]=1;
-    }
-}
-int parent_set(int x){
-    if(x==parent[x])return x;
-    return parent[x]=parent_set(parent[x]);
-}
-void merge_sets(int u, int v){
-    u = parent_set(u);v = parent_set(v);
-    if(u!=v){
-        if(szn[u]<szn[v])swapp(u,v);
-        parent[v]=u; szn[u]+=szn[v];
-    }
-}
-int main(){
+ 
+ 
+ 
+void code(int TC){
     int n,m; cin>>n>>m;
-    make(n*m);
-    int cnt = -1;
-    string s[n];
-    for(int i=0;i<n;i++){
-        cin>>s[i];
-    }   
-    for(int i=0;i<n;i++){
-        for(int j=0;j<m;j++){
-            cnt++;
-            if(s[i][j]=='#')
-            continue;
-            if(i>0){
-                if(s[i-1][j]=='.'){
-                    merge_sets(cnt,cnt-m);
-                }
-            }
-            if(j>0){
-                if(s[i][j-1]=='.'){
-                    merge_sets(cnt,cnt-1);
-                }
-            }
-        }
-    }
-    set<int> st; cnt = 0;
+    vector<string> v(n);
+    for(int i=0;i<n;i++) cin>>v[i];
+    function<void(int,int)> dfs = [&](int i, int j){
+        v[i][j] = '#';
+        if(i-1>=0 && v[i-1][j]=='.') dfs(i-1,j);
+        if(j-1>=0 && v[i][j-1]=='.') dfs(i,j-1);
+        if(i+1<n && v[i+1][j]=='.') dfs(i+1,j);
+        if(j+1<m && v[i][j+1]=='.') dfs(i,j+1);
+    };
+    int cnt = 0;
     for(int i=0;i<n;i++){
         for(int j=0;j<m;j++){
-            if(s[i][j]=='.'){
-                st.insert(parent_set(cnt));
-            }
-            cnt++;
+            if(v[i][j]=='.') cnt++, dfs(i,j);
         }
     }
-    cout<<st.size()<<endl;
+    cout<<cnt<<endl;
+}
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
+    return 0;
 }

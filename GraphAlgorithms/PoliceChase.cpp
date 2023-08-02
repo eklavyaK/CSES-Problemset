@@ -1,123 +1,109 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define print(n) cout<<n<<' '
-#define N() cout<<"NO"<<endl
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
-typedef long long ll;
-#define mp make_pair
-using namespace std;
-#define endl '\n'
-#define S second
+#define endl "\n"
 #define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
-
-const int N = 505;  //max nodes
-unsigned int pos[N];
-int in[N][N],dis[N];
-map<int,map<int,int>> check;
-vector<pair<int,ll>> graph[N];
-int s,f,n,m;ll ans;  //n,m declared
-bool bfs(){
-    fill(dis,dis+n+1,N);
-    bool done[n+1]{};
-    queue<int> Q; Q.push(s);
-    done[s] = 1; dis[s] = 0;
-    while(!Q.empty()){
-        int node = Q.front(); Q.pop();
-        for(auto [to, cap] : graph[node]){
-            if(!done[to] && cap>0){
-                dis[to] = dis[node]+1;
-                done[to]=1;Q.push(to);
-            }
-        }
-        if(dis[node]>dis[f])break;
-    }
-    return done[f];
-}
-ll dfs(int node, ll flo){
-    if(node==f)return flo;
-    for(;pos[node]<graph[node].size();pos[node]++){
-        auto [u,cap] = graph[node][pos[node]];
-        if(dis[u]==dis[node]+1 && cap>0){
-            ll c = dfs(u,min(flo,cap));
-            if(!c) continue;
-            graph[u][in[u][node]].S+=c;
-            graph[node][pos[node]].S-=c;
-            return c;
+#define S second
+#define int long long
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+ 
+ll dinic(vector<vector<pair<ll,ll>>> T, ll n, ll src, ll snk){
+    if(src > n || snk > n || src <=0 || snk <= 0) return 0ll;
+    vector<vector<bool>> I(n+5,vector<bool>(n+5));
+    vector<vector<ll>> p(n+5,vector<ll>(n+5,-1));
+    vector<vector<pair<ll,ll>>> G(n+5);
+    vector<ll> L(n+5), id(n+5);
+    for(ll u=1;u<=n;u++){
+        for(ll j=0;j<(ll)T[u].size();j++){
+            auto [v,cap] = T[u][j];
+            if(p[u][v] == -1) p[u][v] = (ll) G[u].size(), p[v][u] = (ll) G[v].size(), G[u].push_back({v,0}), G[v].push_back({u,0});
+            G[u][p[u][v]].second = cap, I[u][v] = G[u][p[u][v]].second > 0;
         }
     }
-    return 0;
-}
-void Dinic(int start, int final){
-    ans = 0;check.clear();
-    s = start; f = final;
-    for(int i=0;i<m;i++){
-        int u, v; cin>>u>>v;
-        if(!check[u].count(v)){
-            in[u][v]=graph[u].size();
-            graph[u].push_back({v,1});
-            in[v][u]=graph[v].size();
-            graph[v].push_back({u,1});
-            check[u][v]; check[v][u];
+    auto bfs = [&](){
+        L.assign(n+5,-1), L[src] = 0;
+        queue<ll> q; q.push(src);
+        while(!q.empty()){
+            ll u = q.front(); q.pop();
+            for(auto [v,c] : G[u]) if(c > 0 && L[v] == -1) L[v] = L[u] + 1, q.push(v);
         }
-        else{
-            graph[u][in[u][v]].S+=1;
-        }
-    }
-    while(bfs()){
-        fill(pos,pos+n+1,0);
-        for(;pos[s]<graph[s].size();pos[s]++){
-            auto [u,cap] = graph[s][pos[s]];
-            if(dis[u]==dis[s]+1 && cap>0){;
-                ll c = dfs(u,cap);
-                if(!c) continue;
-                graph[u][in[u][s]].S+=c;
-                graph[s][pos[s]].S-=c;
-                ans+=c;
-            }
-        }
-    }
-    cout<<ans<<endl;           //maximum flow and minimum cut
-
-    bool vis[n+1]{};
-    function<void(int)> dfsmincut = [&](int node){
-    	vis[node]=true;
-    	for(auto [u,cap] : graph[node]){
-    		if(!vis[u] && cap>0)
-    			dfsmincut(u);
-    	}
+        return L[snk] != -1;
     };
-    dfsmincut(s);
-    set<pii> st;
-    for(auto vec : graph){
-    	for(auto [node,cap] : vec){
-    		if(vis[node]){
-    			for(auto [u,_] : graph[node]){
-    				if(!vis[u]){
-    					st.insert({node,u});
-    				}
-    			}
-    		}
-    	}
-    }
-    for(auto [a,b] : st)cout<<a<<' '<<b<<endl;  //edges to be removed
+    function<ll(ll,ll)> dfs = [&](ll u, ll pushed){
+        if(u == snk) return pushed;
+        for(;id[u] < (ll) G[u].size();id[u]++){
+            auto [v, c] = G[u][id[u]];
+            if(L[v] != L[u] + 1 || c <= 0) continue;
+            if(ll flo = dfs(v, min(pushed, c))){
+                G[u][id[u]].second -= flo, G[v][p[v][u]].second += flo;
+                return flo;
+            }
+        }
+        return 0ll;
+    };
+    ll maxflo = 0;
+    if(snk == src) return -1ll;
+    while(bfs()) id.assign(n+5,0), maxflo += dfs(src,8e18);
+    
+    "To find MIN CUT EDGES we vist all the nodes from the source such that these nodes are connected to source with a sequence of positive flow in RESIDUAL graph (obtained after the last bfs), visited and unvisited nodes will form two subgraphs, nodes connecting the subgraphs must be saturated, so their residual cap is 0, after this we just check if a edge connects a visited node and an unvisited node and it EXISTED in the initial graph with positive cap, then it will be a min cut edge";
+    id.assign(n+5,0); vector<pair<int,int>> edges;
+    function<void(int)> add = [&](int u){
+        id[u] = 1;
+        for(auto [v,c] : G[u]) if(!id[v] && c>0) add(v);
+    };
+    add(src);
+    for(int u=1;u<=n;u++) if(id[u]) for(auto [v,c] : G[u]) if(!id[v] && I[u][v]) edges.push_back({u,v});
+    
+    "To find maximum number of DISJOINT PATHS we just simply begin from source and go along the path which EXISTED in original graph with a positive cap and got vanished (cap is reduced to 0) after pushing the flow, we'are sure to find a distinct path (no edges are common) along it because if two paths have a common edge one of them shuouldn't exist";
+    // id.assign(n+5,0); vector<int> path;
+    // function<void(int)> go = [&](int u){
+    //     path.push_back(u);
+    //     if(u == snk){
+    //         cout<< endl << (int) path.size() << endl;
+    //         for(auto i : path) cout<< i << " ";
+    //         return;
+    //     }
+    //     for(;id[u] < (int)G[u].size();id[u]++){
+    //         auto [v,c] = G[u][id[u]];
+    //         if(I[u][v] && c<=0){
+    //             I[u][v] = 0, go(v);
+    //             path.pop_back();
+    //             if(u != src) return;
+    //         }
+    //     }
+    // };
+    // go(src);
+    
+    cout<<maxflo<<endl;
+    for(auto [u,v] : edges) cout<<u<<" "<<v<<endl;
+    return maxflo;
 }
-
-int main(){
-    rapid_iostream;
-    cin>>n>>m;
-    Dinic(1,n);
+ 
+ 
+void code(int TC){
+    int n,m; cin>>n>>m;
+    vector<vector<pair<int,int>>> G(n+5);
+    for(int j=0;j<m;j++){
+        int u,v; cin>>u>>v;
+        G[u].push_back({v,1});
+        G[v].push_back({u,1});
+    }
+    dinic(G,n,1,n);
+}
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
     return 0;
 }

@@ -14,27 +14,19 @@ using namespace std;
 #endif
  
 const int M = 1e9+7, N = 1e6+7;
-int dp[N], C[105];
- 
-int add(int A){
-    if(A>=M) A-=M;
-    return A;
-}
-void code(int TC){
-    int n,x; cin>>n>>x; dp[0] = 1;
-    for(int i=0;i<n;i++) cin>>C[i];
-    for(int j=0;j<n;j++){
-        for(int i=1;i<=x;i++) if(i-C[j]>=0) dp[i] = add(dp[i] + dp[i-C[j]]);
+int dp[N][2];
+void calc(){
+    dp[0][1] = dp[0][0] = 1;
+    for(int i=1;i<N;i++){
+        dp[i][0] = (dp[i-1][0] * 4 + dp[i-1][1]) % M;
+        dp[i][1] = (dp[i-1][0] + dp[i-1][1] * 2) % M;
     }
-    cout<<dp[x];
 }
- 
  
 signed main(){
     ios_base::sync_with_stdio(0);
     cin.tie(0);cout.tie(0);cerr.tie(0);
-    int TT = 1;
-    for (int TC = 1; TC <= TT; TC++) 
-        code(TC);
+    calc(); int TC, TT; cin>>TT;
+    while(TT--) cin >> TC, cout << (dp[TC-1][0] + dp[TC-1][1]) % M << endl;
     return 0;
 }

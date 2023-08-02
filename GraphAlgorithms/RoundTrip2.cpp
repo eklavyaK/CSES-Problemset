@@ -1,73 +1,62 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-void swapp(int&a,int&b){int t=a;a=b;b=t;}
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define N() cout<<"NO"<<endl
-#define print(n) cout<<n<<' '
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
-typedef long long ll;
-#define mp make_pair
-using namespace std;
-#define endl '\n'
-#define S second
+#define endl "\n"
 #define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
-set<int> st;
-int parent[100001];
-int check[100001];
-vector<vector<int>> edge(100001);
-void display(int f,int node){
-    vector<int> ans;
-    ans.push_back(f);
-    while(node!=f){
-        ans.push_back(node);
-        node = parent[node];
+#define S second
+#define int long long
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+ 
+const int N = 1e5+5;
+vector<int> G[N];
+int V[N], P[N];
+ 
+ 
+ 
+void code(int TC){
+    int n,m; cin>>n>>m;
+    for(int j=0;j<m;j++){
+        int u,v; cin>>u>>v;
+        G[u].push_back(v);
     }
-    ans.push_back(f);
-    reverse(ans.begin(),ans.end());
-    cout<<ans.size()<<endl;
-    for(auto i : ans) cout<<i<<' ';
-}
-void dfs(int node){
-    st.insert(node);
-    check[node]=1;
-    for(auto i : edge[node]){
-        if(check[i]){
-            if(st.find(i)!=st.end()){
-                display(i,node);exit(0);
+    vector<int> ans; bool is = false;
+    function<void(int)> dfs = [&](int u){
+        V[u] = 2;
+        for(auto v : G[u]){
+            if(!V[v]) P[v] = u, dfs(v);
+            if(!is && V[v]==2){
+                int cur = u;
+                ans.push_back(v);
+                ans.push_back(u);
+                while(cur!=v) cur = P[cur], ans.push_back(cur);
+                is = true;
             }
         }
-        else if(!check[i]){
-            parent[i]=node;
-            dfs(i);
-        }
+        V[u] = 1;
+    };
+    for(int i=1;i<=n;i++) dfs(i);
+    if(!is){
+        cout<<"IMPOSSIBLE"<<endl;
+        return;
     }
-    st.erase(node);
+    else cout<<ans.size()<<endl;
+    reverse(ans.begin(),ans.end());
+    for(auto i : ans) cout<<i<<" ";cout<<endl;
 }
-int main(){
-    int n,m; cin>>n>>m;
-    for(int i=0;i<m;i++){
-        int u,v; cin>>u>>v;
-        edge[u].push_back(v);
-    }
-    for(int i=1;i<=n;i++){
-        if(!check[i]){
-            parent[i]=i;
-            st.insert(i);
-            dfs(i);
-        }
-    }
-    print("IMPOSSIBLE");
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
     return 0;
 }

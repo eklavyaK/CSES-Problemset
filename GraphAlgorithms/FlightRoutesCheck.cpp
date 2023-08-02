@@ -1,67 +1,51 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define print(n) cout<<n<<' '
-#define N() cout<<"NO"<<endl
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
-typedef long long ll;
-#define mp make_pair
-using namespace std;
-#define endl '\n'
-#define S second
+#define endl "\n"
 #define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
-
-const int N = 1e5+5;       //simple concept is that if you can visit all the nodes from a node and also visit the same node from all the nodes then we can visit all the nodes from any node. For ex:- if 1 is visited by all the nodes and we can visit all the nodes from 1. so to visit node 'a' from some node 'b' we can always visit first node 1 from node 'b' (because 1 is visited from all the nodes) then visit the node 'a' from node 1 (all the nodes can visited from node 1)
-int vis[N];
-vector<vector<int>> graph(N);
-vector<vector<int>> reversegraph(N);   
-void dfs(int node){
-    for(auto i : graph[node]){
-        if(vis[i])continue;
-        vis[i]=1;dfs(i);
-    }
-}
-void second_dfs(int node){
-    for(auto i : reversegraph[node]){
-        if(vis[i])continue;
-        vis[i]=1;second_dfs(i);
-    }
-}
-int main(){
-    rapid_iostream;
+#define S second
+#define int long long
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+const int N = 1e5+5;
+vector<int> G[2][N];
+int V[2][N];
+ 
+void code(int TC){
     int n,m; cin>>n>>m;
-    while(m--){
+    for(int j=0;j<m;j++){
         int u,v; cin>>u>>v;
-        graph[u].push_back(v);
-        reversegraph[v].push_back(u);
+        G[0][u].push_back(v);
+        G[1][v].push_back(u);
     }
-    dfs(1);
-    for(int i=2;i<=n;i++){
-        if(!vis[i]){
-            N(); cout<<1<<' '<<i<<endl;
-            return 0;
+    function<void(int,int)> dfs = [&](int id, int u){
+        V[id][u] = 1;
+        for(auto v : G[id][u]) if(!V[id][v]) dfs(id, v);
+    };
+    dfs(0,1);
+    dfs(1,1);
+    for(int i=1;i<=n;i++){
+        if(!V[0][i] || !V[1][i]){
+            cout<<"NO\n";
+            !V[0][i]?cout<<1<<" "<<i:cout<<i<<" "<<1;
+            return;
         }
     }
-    fill(vis,vis+n+1,0);
-    second_dfs(1);
-    for(int i=2;i<=n;i++){
-        if(!vis[i]){
-            N(); cout<<i<<' '<<1<<endl;
-            return 0;
-        }
-    }
-    Y(); 
+    cout<<"YES";
+}
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
     return 0;
 }

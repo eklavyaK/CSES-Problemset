@@ -1,118 +1,95 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define print(n) cout<<n<<' '
-#define N() cout<<"NO"<<endl
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
-typedef long long ll;
-#define mp make_pair
-using namespace std;
-#define endl '\n'
-#define S second
+#define endl "\n"
 #define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
+#define S second
+#define int long long
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
  
-const int N = 1005;  //max nodes
-unsigned int pos[N];
-int in[N][N],dis[N];
-int check[2][N];
-vector<pii> res;
-vector<int> track;
-vector<pair<int,ll>> graph[N];
-int s,f,n,m,k;ll ans;  //n,m declared
-bool bfs(){
-    bool done[N]{};
-    fill(dis,dis+N,N);
-    queue<int> Q; Q.push(s);
-    done[s] = 1; dis[s] = 0;
-    while(!Q.empty()){
-        int node = Q.front(); Q.pop();
-        for(auto [to, cap] : graph[node]){
-            if(!done[to] && cap>0){
-                dis[to] = dis[node]+1;
-                done[to]=1;Q.push(to);
+ 
+ll dinic(vector<vector<pair<ll,ll>>> T, ll n, ll src, ll snk, ll C){
+    if(src > n || snk > n || src <=0 || snk <= 0) return 0ll;
+    vector<vector<bool>> I(n+5,vector<bool>(n+5));
+    vector<vector<ll>> p(n+5,vector<ll>(n+5,-1));
+    vector<vector<pair<ll,ll>>> G(n+5);
+    vector<ll> L(n+5), id(n+5);
+    for(ll u=1;u<=n;u++){
+        for(ll j=0;j<(ll)T[u].size();j++){
+            auto [v,cap] = T[u][j];
+            if(p[u][v] == -1) p[u][v] = (ll) G[u].size(), p[v][u] = (ll) G[v].size(), G[u].push_back({v,0}), G[v].push_back({u,0});
+            G[u][p[u][v]].second = cap, I[u][v] = G[u][p[u][v]].second > 0;
+        }
+    }
+    auto bfs = [&](){
+        L.assign(n+5,-1), L[src] = 0;
+        queue<ll> q; q.push(src);
+        while(!q.empty()){
+            ll u = q.front(); q.pop();
+            for(auto [v,c] : G[u]) if(c > 0 && L[v] == -1) L[v] = L[u] + 1, q.push(v);
+        }
+        return L[snk] != -1;
+    };
+    function<ll(ll,ll)> dfs = [&](ll u, ll pushed){
+        if(u == snk) return pushed;
+        for(;id[u] < (ll) G[u].size();id[u]++){
+            auto [v, c] = G[u][id[u]];
+            if(L[v] != L[u] + 1 || c <= 0) continue;
+            if(ll flo = dfs(v, min(pushed, c))){
+                G[u][id[u]].second -= flo, G[v][p[v][u]].second += flo;
+                return flo;
             }
         }
-        if(dis[node]>dis[f])break;
+        return 0ll;
+    };
+    ll maxflo = 0;
+    if(snk == src) return -1ll;
+    while(bfs()) id.assign(n+5,0), maxflo += dfs(src,8e18);
+    
+    // id.assign(n+5,0);
+    // vector<pair<int,int>> edges;               //Getting min cut edges
+    // function<void(int)> add = [&](int u){
+    //     id[u] = 1;
+    //     for(auto [v,c] : G[u]) if(!id[v] && c>0) add(v);
+    // };
+    // add(src);
+    // for(int u=1;u<=n;u++) if(id[u]) for(auto [v,c] : G[u]) if(!id[v] && I[u][v]) edges.push_back({u,v});
+ 
+    vector<pair<int,int>> edges;               //Getting min cut edges
+    for(int i=1;i<=C;i++){
+        for(auto [v,c] : G[i]) if(c<=0 && v<src) edges.push_back({i,v-C});
     }
-    return done[f];
+    
+    cout<<maxflo<<endl;
+    for(auto [u,v] : edges) cout<<u<<' '<<v<<endl;
+    
+    return maxflo;
 }
-ll dfs(int node, ll flo){
-    if(node==f)return flo;
-    for(;pos[node]<graph[node].size();pos[node]++){
-        auto [u,cap] = graph[node][pos[node]];
-        if(dis[u]==dis[node]+1 && cap>0){
-            ll c = dfs(u,min(flo,cap));
-            if(!c) continue;
-            graph[u][in[u][node]].S+=c;
-            graph[node][pos[node]].S-=c;
-            return c;
-        }
-    }
-    return 0;
-}
-void Dinic(int start, int final){
-    ans = 0;
-    s = start; f = final;
+ 
+void code(int TC){
+    int n,m,k; cin>>n>>m>>k;
+    vector<vector<pair<int,int>>> G(n+m+5);
     for(int i=0;i<k;i++){
-        int u, v; cin>>u>>v;
-        v = 500+v;
-        in[u][v]=graph[u].size();
-        graph[u].push_back({v,1});
-        in[v][u]=graph[v].size();
-        graph[v].push_back({u,0});
-        if(!check[0][u]){
-            check[0][u]=1;
-            in[0][u]=graph[0].size();
-            graph[0].push_back({u,1});
-            in[u][0]=graph[u].size();
-            graph[u].push_back({0,0});
-        }
-        if(!check[1][v]){
-            check[1][v]=1;
-            in[1001][v]=graph[1001].size();
-            graph[1001].push_back({v,0});
-            in[v][1001]=graph[v].size();
-            graph[v].push_back({1001,1});
-        }
+        int u,v; cin>>u>>v;
+        G[u].push_back({n+v,1});
     }
-    while(bfs()){
-        fill(pos,pos+N,0);
-        for(;pos[s]<graph[s].size();pos[s]++){
-            auto [u,cap] = graph[s][pos[s]];
-            if(dis[u]==dis[s]+1 && cap>0){;
-                ll c = dfs(u,cap);
-                if(!c) continue;
-                graph[u][in[u][s]].S+=c;
-                graph[s][pos[s]].S-=c;
-                ans+=c;
-            }
-        }
-    }
-    cout<<ans<<endl;
-    for(auto [node,_] : graph[0]){
-        for(auto [u,c] : graph[node]){
-            if(u!=0 && c==0){
-                cout<<node<<' '<<u-500<<endl;
-            }
-        }
-    }
+    for(int i=1;i<=n;i++) G[n+m+1].push_back({i,1});
+    for(int j=1;j<=m;j++) G[j+n].push_back({n+m+2,1});
+    dinic(G,n+m+2,n+m+1,n+m+2,n);
 }
  
-int main(){
-    rapid_iostream;
-    cin>>n>>m>>k;
-    Dinic(0,1001);
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
     return 0;
 }

@@ -1,104 +1,68 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define print(n) cout<<n<<' '
-#define N() cout<<"NO"<<endl
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
-typedef long long ll;
-#define mp make_pair
-using namespace std;
-#define endl '\n'
-#define S second
+#define endl "\n"
 #define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
-const int N = 2e5+5, LOG = 32;
-int par[N][LOG], vis[N], dep[N];
-vector<vector<int>> node(N);
-int cyclenumber[N], cnt = 1;
-map<int,int> cyclesize;
-void dfs(int u, int k){
-    cyclenumber[u]=k-1;
-    if(cyclenumber[par[u][0]]==0){
-        dfs(par[u][0],k-1);
+#define S second
+#define int long long
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+ 
+const int N = 2e5+5;
+int p[N][35], cyc[N], vis[N], dep[N], ckl[N];
+ 
+void code(int TC){
+    int n,q; cin>>n>>q;
+    for(int i=1;i<=n;i++) cin>>p[i][0];
+    for(int i=1;i<35;i++){
+        for(int j=1;j<=n;j++) p[j][i] = p[p[j][i-1]][i-1];
     }
-    if(cyclenumber[par[u][0]]<0){
-        cyclesize[cnt] = cyclenumber[par[u][0]]-cyclenumber[u];
-        cyclenumber[u] = cnt;
-        dep[u]=0; cnt++;
-    }
-    else{
-        cyclenumber[u] = cyclenumber[par[u][0]];
-        dep[u]=dep[par[u][0]]+1;
-    }
-}
-int lca(int u, int v){
-    if(dep[u]<dep[v]){
-        swap(u,v);
-    }
-    int k = dep[u]-dep[v]; 
-    for(int i=0;i<LOG;i++){
-        if(k & (1<<i)){
-            u = par[u][i];
-        }
-    }
-    if(u==v)return u;
-    for(int i=LOG-1;i>=0;i--){
-        if(par[u][i]!=par[v][i]){
-            u = par[u][i];
-            v = par[v][i];
-        }
-    }
-    return par[u][0];
-}
-
-int main(){
-    rapid_iostream;
-    int n,q; cin>>n>>q; int a[n+1];
+    int c = 1;
     for(int i=1;i<=n;i++){
-        cin>>a[i];
-        par[i][0]=a[i];
+        if(vis[p[i][25]]) continue;
+        int cur = p[i][25];
+        int sz = 0;
+        while(!vis[cur]) sz += 1, vis[cur] = sz, cur = p[cur][0], cyc[cur] = c;
+        ckl[c++] = sz;
     }
-    for(int j=1;j<LOG;j++){
-        for(int i=1;i<=n;i++){
-            par[i][j]=par[par[i][j-1]][j-1];
-        }
-    }
-    for(int i=1;i<=n;i++){
-        if(cyclenumber[i]==0){
-            dfs(i,0);
-        }
-    }
-    map<int,map<int,bool>> cycle;
-    for(int i=1;i<=n;i++){
-        if(dep[i]==0){
-            int k = i;
-            int num = cyclenumber[k];
-            cycle[num][k]=true;
-            while(par[k][0]!=i){
-                k = par[k][0];
-                cycle[num][k]=true;
+    function<int(int)> calc = [&](int cur){
+        if(cyc[cur]) return 0ll;
+        if(dep[cur]) return dep[cur];
+        return dep[cur] = calc(p[cur][0]) + 1;
+    };
+    for(int i=1;i<=n;i++) if(!dep[i]) dep[i] = calc(i);
+    while(q--){
+        int u,v; cin>>u>>v;
+        int ans = -1;
+        if(dep[u]>=dep[v] && cyc[p[u][25]]==cyc[p[v][25]]){
+            int d = dep[u]-dep[v];
+            for(int i=0;i<25;i++){
+                if((1<<i)&d) u = p[u][i];
+            }
+            if(u==v || dep[u]==0 && dep[v]==0){
+                ans = d;
+                if(dep[u]==0 && dep[v]==0){
+                    if(vis[u]>vis[v]) ans += ckl[cyc[u]] - (vis[u] - vis[v]);
+                    else ans += vis[v] - vis[u];
+                }
             }
         }
+        cout<<ans<<endl;
     }
-    while(q--){
-        int in,f; cin>>in>>f;
-        if(cyclenumber[in]!=cyclenumber[f]) println(-1);
-        else if(lca(in,f)==f)cout<<dep[in]-dep[f]<<endl;
-        else if(cycle[cyclenumber[f]][f]){
-            cout<<cyclesize[cyclenumber[f]]-dep[f]+dep[in]+1<<endl;
-        }
-        else println(-1);
-    }
+}
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
     return 0;
 }

@@ -14,25 +14,36 @@ using namespace std;
 #endif
  
  
-const int N = 2e5;
-bool dp[2][N];
- 
- 
+const int N = 7e4, M = 1e9+7;
+int dp[2][N], l = 0;
+int exp(int a, int n){
+	int res = 1;
+	while(n>0){
+		if(n&1) res = (res*a) % M;
+		a = (a*a) % M, n>>=1;
+	}
+	return res;
+}
+int add(int A){
+	if(A>=M) A-=M;
+	return A;
+}
 void code(int TC){
 	int n; cin>>n;
-	int c[n], l = 0; dp[1-l][0] = 1;
-	for(int i=0;i<n;i++) cin >> c[i];
-	for(int j=0;j<n;j++){
-		int M = 1000 * (j+1);
-		for(int i=0;i<=M;i++){
-			if(dp[1-l][i] || (i-c[j]>=0 && dp[1-l][i-c[j]])) dp[l][i] = 1;
+	int T = n*(n+1)/2;
+	if(T&1){
+		cout<<0<<endl;
+		return;
+	}
+	else T>>=1, dp[1-l][0] = 1;
+	for(int i=1;i<=n;i++){
+		for(int j=0;j<=T;j++){
+			dp[l][j] = dp[1-l][j];
+			if(j-i>=0) dp[l][j] = add(dp[l][j] + dp[1-l][j-i]);
 		}
 		l^=1;
 	}
-	int k = 0;
-	for(int i=1;i<N;i++) if(dp[1-l][i]) k++;
-	cout<<k<<endl;
-	for(int i=1;i<N;i++) if(dp[1-l][i]) cout<<i<<" ";
+	cout<<dp[1-l][T] * exp(2,M-2) % M;
 }
  
  

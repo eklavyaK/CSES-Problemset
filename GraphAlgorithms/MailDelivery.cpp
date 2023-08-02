@@ -1,112 +1,85 @@
-#define Compare(u) class Comp{public: bool operator() (u a, u b){return a.F < b.F;}};
-#define rapid_iostream ios_base::sync_with_stdio(0);cin.tie(0)
-#define _pq(u) priority_queue<u,vector<u>, Comp>
-#define binary(n,k) bitset<k>(n).to_string()
-#define println(n) cout<<n<<'\n'
-#define Y() cout<<"YES"<<endl
-#define print(n) cout<<n<<' '
-#define N() cout<<"NO"<<endl
-#define pii pair<int,int>
-#define mod1 1000000007ll
-#define pli pair<ll,int>
-#define pil pair<int,ll>
-#define mod2 998244353ll
 #include<bits/stdc++.h>
-#define pll pair<ll,ll>
-typedef long double ld;
-typedef long long ll;
-#define mp make_pair
-using namespace std;
-#define endl '\n'
-#define S second
+#define endl "\n"
 #define F first
-Compare(pii)
-/***************************************************MAIN PROGRAM*******************************************************/
-const int N = 1e5+5;
-vector<int> graph[N],ans[N];
-map<int,bool> edge[N];
-int n,m,cnt[N],godfs[N];
-set<int> st;
-bool check(){
+#define S second
+#define int long long
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#ifndef ONLINE_JUDGE
+#include "include/debug.h"
+#else
+#define debugarr(a,n) 42
+#define debug(...) 42
+#endif
+ 
+ 
+ 
+ 
+ 
+void code(int TC){
+    int n,m; cin>>n>>m;
+    vector<vector<pair<int,int>>> G(n+5);
+    vector<int> idg(n+5), E(m), vis(n+5);
+    for(int j=0;j<m;j++){
+        int u,v; cin>>u>>v;
+        idg[u]++,idg[v]++;
+        G[u].push_back({v,j});
+        G[v].push_back({u,j});
+    }
     for(int i=1;i<=n;i++){
-        if(cnt[i]&1){
-            return false;
+        if(idg[i] & 1){
+            debug(i);
+            cout<<"IMPOSSIBLE"<<endl;
+            return;
         }
     }
-    int vis[n+1]{};
-    queue<int> q;
-    q.push(1);
-    vis[1] = 1;
-    while(!q.empty()){
-        int node = q.front();q.pop();
-        for(auto i : graph[node]){
-            if(!vis[i]) {
-                q.push(i);
-                vis[i]=1;
+    vector<queue<int>> C(n+5);
+    function<void(int,int)> dfs = [&](int u, int node){
+        vis[u] = 1;
+        C[node].push(u);
+        while(!G[u].empty()){
+            auto [v,e] = G[u].back();
+            G[u].pop_back();
+            if(u==1) debug(v);
+            if(!E[e]){
+                E[e] = 1, dfs(v,node);
+                return;
             }
         }
-    }
+    };
+    vis[1] = 1;
     for(int i=1;i<=n;i++){
-        if(!vis[i] && cnt[i]!=0){
-            return false;
+        if(!vis[i]) continue;
+        while(!G[i].empty()){
+            auto [v,e] = G[i].back();
+            if(!E[e]) dfs(i,i), debug(C[i]);
+            else G[i].pop_back();
         }
     }
-    return true;
-}
-vector<int> route;
-void construct(int node){
-    route.push_back(node);
-    for(int i=1;i<ans[node].size();i++){
-        if(ans[node][i]==node){
-            route.push_back(node);
-            continue;
-        }
-        construct(ans[node][i]);
-        ans[ans[node][i]].clear();
-    }
-}
-bool track = false;
-void dfs(int node,int k){
-    cnt[node]-=2;
-    if(!godfs[node])
-    st.insert(node);
-    ans[k].push_back(node);
-    if(cnt[node]<0){
-        track = true;
-        return;
-    }
-    for(auto [i,t] : edge[node]){
-        edge[i].erase(node);
-        edge[node].erase(i);
-        dfs(i,k);
-        if(track)return;
-    }
-}
-int main(){
-    rapid_iostream;
-    cin>>n>>m;
     for(int i=0;i<m;i++){
-        int u,v; cin>>u>>v;
-        edge[u][v]=true;
-        edge[v][u]=true;
-        cnt[u]++;cnt[v]++;
-        graph[u].push_back(v);
-        graph[v].push_back(u);
-    }
-    if(!check()){
-        print("IMPOSSIBLE");
-        return 0;
-    }
-    st.insert(1);
-    while(!st.empty()){
-        int k = *st.begin();
-        st.erase(k);
-        godfs[k] = 1;
-        if(cnt[k]>0){
-            dfs(k,k);
+        if(!E[i]){
+            debug(i);
+            cout<<"IMPOSSIBLE"<<endl;
+            return;
         }
     }
+    function<void(int)> construct = [&](int u){
+        while(!C[u].empty()){
+            int node = C[u].front(); C[u].pop();
+            if(u!=node && !C[node].empty()) construct(node);
+            else cout<<node<<" ";
+        }
+    };
     construct(1);
-    for(auto i : route) cout<<i<<' ';
+}
+ 
+ 
+signed main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);cerr.tie(0);
+    int TT = 1;
+    for (int TC = 1; TC <= TT; TC++) 
+        code(TC);
     return 0;
 }
